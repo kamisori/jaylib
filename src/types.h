@@ -387,6 +387,67 @@ static Janet jaylib_wrap_vec2(Vector2 x) {
     return janet_wrap_tuple(janet_tuple_end(tup));
 }
 
+static Janet jaylib_wrap_vec3f(Vector3 x) {
+    Janet *tup = janet_tuple_begin(3);
+    tup[0] = janet_wrap_number(x.x);
+    tup[1] = janet_wrap_number(x.y);
+    tup[2] = janet_wrap_number(x.z);
+    return janet_wrap_tuple(janet_tuple_end(tup));
+}
+
+static Janet jaylib_wrap_vec4f(Vector4 x) {
+    Janet *tup = janet_tuple_begin(4);
+    tup[0] = janet_wrap_number(x.x);
+    tup[1] = janet_wrap_number(x.y);
+    tup[2] = janet_wrap_number(x.z);
+    tup[3] = janet_wrap_number(x.w);
+    return janet_wrap_tuple(janet_tuple_end(tup));
+}
+
+static Janet jaylib_wrap_ray(Ray r) {
+    JanetKV *ray = janet_struct_begin(2);
+    janet_struct_put(ray, janet_ckeywordv("position"), jaylib_wrap_vec3f(r.position));
+    janet_struct_put(ray, janet_ckeywordv("direction"), jaylib_wrap_vec3f(r.direction));
+    return janet_wrap_struct(janet_struct_end(ray));
+}
+
+static Janet jaylib_wrap_matrix(Matrix m) {
+    JanetKV *mat = janet_struct_begin(8);
+    janet_struct_put(mat, janet_ckeywordv("m0"), janet_wrap_number(m.m0));
+    janet_struct_put(mat, janet_ckeywordv("m1"), janet_wrap_number(m.m1));
+
+    janet_struct_put(mat, janet_ckeywordv("m4"), janet_wrap_number(m.m4));
+    janet_struct_put(mat, janet_ckeywordv("m5"), janet_wrap_number(m.m5));
+
+    janet_struct_put(mat, janet_ckeywordv("m8"), janet_wrap_number(m.m8));
+    janet_struct_put(mat, janet_ckeywordv("m9"), janet_wrap_number(m.m9));
+
+    janet_struct_put(mat, janet_ckeywordv("m12"), janet_wrap_number(m.m12));
+    janet_struct_put(mat, janet_ckeywordv("m13"), janet_wrap_number(m.m13));
+
+    return janet_wrap_struct(janet_struct_end(mat));
+}
+
+static Janet jaylib_wrap_rectangle(Rectangle r) {
+    JanetKV *rec = janet_struct_begin(4);
+    janet_struct_put(rec, janet_ckeywordv("x"), janet_wrap_number(r.x));
+    janet_struct_put(rec, janet_ckeywordv("y"), janet_wrap_number(r.y));
+
+    janet_struct_put(rec, janet_ckeywordv("width"), janet_wrap_number(r.width));
+    janet_struct_put(rec, janet_ckeywordv("height"), janet_wrap_number(r.height));
+
+    return janet_wrap_struct(janet_struct_end(rec));
+}
+
+static Janet jaylib_wrap_color(Color c) {
+    Janet *t = janet_tuple_begin(4);
+    t[0] = janet_wrap_integer(c.r);
+    t[1] = janet_wrap_integer(c.g);
+    t[2] = janet_wrap_integer(c.b);
+    t[3] = janet_wrap_integer(c.a);
+    return janet_wrap_tuple(janet_tuple_end(t));
+}
+
 static const JanetAbstractType AT_TextureCubemap = {
     "jaylib/texture-cubemap",
     NULL,

@@ -252,12 +252,7 @@ static Janet cfun_ImageExtractPalette(int32_t argc, Janet *argv) {
     JanetArray *acolors = janet_array(extractCount);
     for (int i = 0; i < extractCount; i++) {
         Color c = colors[i];
-        Janet *t = janet_tuple_begin(4);
-        t[0] = janet_wrap_integer(c.r);
-        t[1] = janet_wrap_integer(c.g);
-        t[2] = janet_wrap_integer(c.b);
-        t[3] = janet_wrap_integer(c.a);
-        janet_array_push(acolors, janet_wrap_tuple(janet_tuple_end(t)));
+        janet_array_push(acolors, jaylib_wrap_color(c));
     }
     return janet_wrap_array(acolors);
 }
@@ -626,6 +621,43 @@ static Janet cfun_GetImageDimensions(int32_t argc, Janet *argv) {
     return jaylib_wrap_vec2(dim);
 }
 
+static Janet cfun_ColorToInt(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    Color color = jaylib_getcolor(argv, 0);
+    return janet_wrap_integer(ColorToInt(color));
+}
+
+static Janet cfun_ColorNormalize(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    Color color = jaylib_getcolor(argv, 0);
+    return jaylib_wrap_vec4f(ColorNormalize(color));
+}
+
+static Janet cfun_ColorToHSV(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    Color color = jaylib_getcolor(argv, 0);
+    return jaylib_wrap_vec3f(ColorToHSV(color));
+}
+
+static Janet cfun_ColorFromHSV(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    Vector3 hsv = jaylib_getvec3(argv, 0);
+    return jaylib_wrap_color(ColorFromHSV(hsv));
+}
+
+static Janet cfun_GetColor(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    int hexValue = janet_getinteger(argv, 0);
+    return jaylib_wrap_color(GetColor(hexValue));
+}
+
+static Janet cfun_Fade(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 2);
+    Color color =  jaylib_getcolor(argv, 0);
+    float alpha =  janet_getnumber(argv, 1);
+    return jaylib_wrap_color(Fade(color, alpha));
+}
+
 /*
 // Image/Texture2D data loading/unloading/saving functions
 RLAPI Image LoadImagePro(void *data, int width, int height, int format);                                 // Load image from raw data with parameters
@@ -704,5 +736,11 @@ static const JanetReg image_cfuns[] = {
     {"gen-texture-mipmaps", cfun_GenTextureMipmaps, NULL},
     {"set-texture-filter", cfun_SetTextureFilter, NULL},
     {"set-texture-wrap", cfun_SetTextureWrap, NULL},
+    {"color->int", cfun_ColorToInt, NULL},
+    {"color-normalize", cfun_ColorNormalize, NULL},
+    {"color->HSV", cfun_ColorToHSV, NULL},
+    {"color<-HSV", cfun_ColorFromHSV, NULL},
+    {"get-color", cfun_GetColor, NULL},
+    {"fade", cfun_Fade, NULL},
     {NULL, NULL, NULL}
 };

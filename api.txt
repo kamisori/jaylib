@@ -46,9 +46,9 @@
 [x] void EndTextureMode(void)
 
 // Screen-space-related functions
-[ ] Ray GetMouseRay(Vector2 mousePosition, Camera camera)
-[ ] Vector2 GetWorldToScreen(Vector3 position, Camera camera)
-[ ] Matrix GetCameraMatrix(Camera camera)
+[?] Ray GetMouseRay(Vector2 mousePosition, Camera camera)
+[?] Vector2 GetWorldToScreen(Vector3 position, Camera camera)
+[?] Matrix GetCameraMatrix(Camera camera)
 
 // Timing-related functions
 [x] void SetTargetFPS(int fps)
@@ -57,12 +57,12 @@
 [x] double GetTime(void)
 
 // Color-related functions
-[ ] int ColorToInt(Color color)
-[ ] Vector4 ColorNormalize(Color color)
-[ ] Vector3 ColorToHSV(Color color)
-[ ] Color ColorFromHSV(Vector3 hsv)
-[ ] Color GetColor(int hexValue)
-[ ] Color Fade(Color color, float alpha)
+[?] int ColorToInt(Color color)
+[?] Vector4 ColorNormalize(Color color)
+[?] Vector3 ColorToHSV(Color color)
+[?] Color ColorFromHSV(Vector3 hsv)
+[?] Color GetColor(int hexValue)
+[?] Color Fade(Color color, float alpha)
 
 // Misc. functions
 [x] void SetConfigFlags(unsigned char flags)
@@ -181,21 +181,21 @@
 [x] void DrawTriangleFan(Vector2 *points, int numPoints, Color color)
 [x] void DrawPoly(Vector2 center, int sides, float radius, float rotation, Color color)
 
-[ ] void SetShapesTexture(Texture2D texture, Rectangle source)
+[?] void SetShapesTexture(Texture2D texture, Rectangle source)
 
 // Basic shapes collision detection functions
-[ ] bool CheckCollisionRecs(Rectangle rec1, Rectangle rec2)
-[ ] bool CheckCollisionCircles(Vector2 center1, float radius1, Vector2 center2, float radius2)
-[ ] bool CheckCollisionCircleRec(Vector2 center, float radius, Rectangle rec)
-[ ] Rectangle GetCollisionRec(Rectangle rec1, Rectangle rec2)
-[ ] bool CheckCollisionPointRec(Vector2 point, Rectangle rec)
-[ ] bool CheckCollisionPointCircle(Vector2 point, Vector2 center, float radius)
-[ ] bool CheckCollisionPointTriangle(Vector2 point, Vector2 p1, Vector2 p2, Vector2 p3)
+[?] bool CheckCollisionRecs(Rectangle rec1, Rectangle rec2)
+[?] bool CheckCollisionCircles(Vector2 center1, float radius1, Vector2 center2, float radius2)
+[?] bool CheckCollisionCircleRec(Vector2 center, float radius, Rectangle rec)
+[?] Rectangle GetCollisionRec(Rectangle rec1, Rectangle rec2)
+[?] bool CheckCollisionPointRec(Vector2 point, Rectangle rec)
+[?] bool CheckCollisionPointCircle(Vector2 point, Vector2 center, float radius)
+[?] bool CheckCollisionPointTriangle(Vector2 point, Vector2 p1, Vector2 p2, Vector2 p3)
 
 // Image/Texture2D data loading/unloading/saving functions
 [x] Image LoadImage(const char *fileName)
 [x] Image LoadImageEx(Color *pixels, int width, int height)
-[x] Image LoadImagePro(void *data, int width, int height, int format)
+[ ] Image LoadImagePro(void *data, int width, int height, int format)
 [ ] Image LoadImageRaw(const char *fileName, int width, int height, int format, int headerSize)
 [x] void ExportImage(Image image, const char *fileName)
 [x] void ExportImageAsCode(Image image, const char *fileName)

@@ -311,20 +311,20 @@
 [x] void DrawGizmo(Vector3 position)
 
 // Model loading/unloading functions
-[ ] Model LoadModel(const char *fileName)
-[ ] Model LoadModelFromMesh(Mesh mesh)
-[ ] void UnloadModel(Model model)
+[!] Model LoadModel(const char *fileName)
+[!] Model LoadModelFromMesh(Mesh mesh)
+[!] void UnloadModel(Model model)
 
 // Mesh loading/unloading functions
-[ ] Mesh *LoadMeshes(const char *fileName, int *meshCount)
-[ ] void ExportMesh(Mesh mesh, const char *fileName)
-[ ] void UnloadMesh(Mesh *mesh)
+[!] Mesh *LoadMeshes(const char *fileName, int *meshCount)
+[!] void ExportMesh(Mesh mesh, const char *fileName)
+[!] void UnloadMesh(Mesh *mesh)
 
 // Material loading/unloading functions
 [ ] Material *LoadMaterials(const char *fileName, int *materialCount)
 [ ] Material LoadMaterialDefault(void)
 [ ] void UnloadMaterial(Material material)
-[ ] void SetMaterialTexture(Material *material, int mapType, Texture2D texture)
+[!?!] void SetMaterialTexture(Material *material, int mapType, Texture2D texture)
 [ ] void SetModelMeshMaterial(Model *model, int meshId, int materialId)
 
 // Model animations loading/unloading functions
@@ -351,7 +351,7 @@
 [ ] void MeshBinormals(Mesh *mesh)
 
 // Model drawing functions
-[ ] void DrawModel(Model model, Vector3 position, float scale, Color tint)
+[!] void DrawModel(Model model, Vector3 position, float scale, Color tint)
 [ ] void DrawModelEx(Model model, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale, Color tint)
 [ ] void DrawModelWires(Model model, Vector3 position, float scale, Color tint)
 [ ] void DrawModelWiresEx(Model model, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale, Color tint)

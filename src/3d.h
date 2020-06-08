@@ -156,6 +156,66 @@ static Janet cfun_DrawRay(int32_t argc, Janet *argv) {
     return janet_wrap_nil();
 }
 
+// WIP: mlatu: implement DrawModel
+//static Janet 
+//void DrawModel(Model model, Vector3 position, float scale, Color tint)
+
+static Janet cfun_LoadModel(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    const char *fileName = jaylib_getcstring(argv, 0);
+    Model *model = janet_abstract(&AT_Model, sizeof(Model));
+    *model = LoadModel(fileName);
+    return janet_wrap_abstract(model);
+}
+
+static Janet cfun_LoadModelFromMesh(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    Mesh *mesh = jaylib_getmesh(argv, 0);
+    Model *model = janet_abstract(&AT_Model, sizeof(Model));
+    *model = LoadModelFromMesh(*mesh);
+    return janet_wrap_abstract(model);
+}
+static Janet cfun_UnloadModel(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    Model *model = jaylib_getmodel(argv, 0);
+    UnloadModel(*model);
+    return janet_wrap_nil();
+}
+
+static Janet cfun_LoadMeshes(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 2);
+    const char *fileName = jaylib_getcstring(argv, 0);
+    int meshCount = janet_getinteger(argv, 1);
+    Mesh *mesh = janet_abstract(&AT_Mesh, sizeof(Mesh));
+    mesh = LoadMeshes(fileName, &meshCount);
+    return janet_wrap_abstract(mesh);
+}
+
+static Janet cfun_ExportMesh(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 2);
+    Mesh *mesh = jaylib_getmesh(argv, 0);
+    const char *fileName = jaylib_getcstring(argv, 1);
+    ExportMesh(*mesh, fileName);
+    return janet_wrap_nil();
+}
+
+static Janet cfun_UnloadMesh(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    Mesh *mesh = jaylib_getmesh(argv, 0);
+    UnloadMesh(*mesh);
+    return janet_wrap_nil();
+}
+
+static Janet cfun_DrawModel(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 4);
+    Model *model = jaylib_getmodel(argv, 0);
+    Vector3 position = jaylib_getvec3(argv, 1);
+    float scale = janet_getnumber(argv, 2);
+    Color tint = jaylib_getcolor(argv, 3);
+    DrawModel(*model, position, scale, tint);
+    return janet_wrap_nil();
+}
+
 static JanetReg threed_cfuns[] = {
     {"draw-line-3d", cfun_DrawLine3D, NULL},
     {"draw-circle-3d", cfun_DrawCircle3D, NULL},
@@ -173,5 +233,12 @@ static JanetReg threed_cfuns[] = {
     {"draw-cylinder-wires", cfun_DrawCylinderWires, NULL},
     {"draw-plane", cfun_DrawPlane, NULL},
     {"draw-ray", cfun_DrawRay, NULL},
+    {"load-model", cfun_LoadModel, NULL},
+    {"load-model-from-mesh", cfun_LoadModelFromMesh, NULL},
+    {"unload-model", cfun_UnloadModel, NULL},
+    {"draw-model", cfun_DrawModel, NULL},
+    {"load-meshes", cfun_LoadMeshes, NULL},
+    {"export-mesh", cfun_ExportMesh, NULL},
+    {"unload-mesh", cfun_UnloadMesh, NULL},
     {NULL, NULL, NULL}
 };

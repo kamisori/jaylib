@@ -570,6 +570,36 @@ static Font *jaylib_getfont(const Janet *argv, int32_t n) {
     return ((Font *)janet_getabstract(argv, n, &AT_Font));
 }
 
+static const JanetAbstractType AT_Model = {
+    "jaylib/model",
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+};
+
+static Model *jaylib_getmodel(const Janet *argv, int32_t n) {
+    return ((Model *)janet_getabstract(argv, n, &AT_Model));
+}
+
+static const JanetAbstractType AT_Mesh = {
+    "jaylib/mesh",
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+};
+
+static Mesh *jaylib_getmesh(const Janet *argv, int32_t n) {
+    return ((Mesh *)janet_getabstract(argv, n, &AT_Mesh));
+}
+
 static const JanetAbstractType AT_RenderTexture = {
     "jaylib/render-texture",
     NULL,

@@ -425,38 +425,19 @@ static Janet jaylib_wrap_vec4f(Vector4 x) {
 }
 
 static Janet jaylib_wrap_ray(Ray r) {
-    JanetKV *ray = janet_struct_begin(2);
-    janet_struct_put(ray, janet_ckeywordv("position"), jaylib_wrap_vec3f(r.position));
-    janet_struct_put(ray, janet_ckeywordv("direction"), jaylib_wrap_vec3f(r.direction));
-    return janet_wrap_struct(janet_struct_end(ray));
-}
-
-static Janet jaylib_wrap_matrix(Matrix m) {
-    JanetKV *mat = janet_struct_begin(8);
-    janet_struct_put(mat, janet_ckeywordv("m0"), janet_wrap_number(m.m0));
-    janet_struct_put(mat, janet_ckeywordv("m1"), janet_wrap_number(m.m1));
-
-    janet_struct_put(mat, janet_ckeywordv("m4"), janet_wrap_number(m.m4));
-    janet_struct_put(mat, janet_ckeywordv("m5"), janet_wrap_number(m.m5));
-
-    janet_struct_put(mat, janet_ckeywordv("m8"), janet_wrap_number(m.m8));
-    janet_struct_put(mat, janet_ckeywordv("m9"), janet_wrap_number(m.m9));
-
-    janet_struct_put(mat, janet_ckeywordv("m12"), janet_wrap_number(m.m12));
-    janet_struct_put(mat, janet_ckeywordv("m13"), janet_wrap_number(m.m13));
-
-    return janet_wrap_struct(janet_struct_end(mat));
+    Janet *tup = janet_tuple_begin(2);
+    tup[0] = jaylib_wrap_vec3f(r.position);
+    tup[1] = jaylib_wrap_vec3f(r.direction);
+    return janet_wrap_tuple(janet_tuple_end(tup));
 }
 
 static Janet jaylib_wrap_rectangle(Rectangle r) {
-    JanetKV *rec = janet_struct_begin(4);
-    janet_struct_put(rec, janet_ckeywordv("x"), janet_wrap_number(r.x));
-    janet_struct_put(rec, janet_ckeywordv("y"), janet_wrap_number(r.y));
-
-    janet_struct_put(rec, janet_ckeywordv("width"), janet_wrap_number(r.width));
-    janet_struct_put(rec, janet_ckeywordv("height"), janet_wrap_number(r.height));
-
-    return janet_wrap_struct(janet_struct_end(rec));
+    Janet *tup = janet_tuple_begin(4);
+    tup[0] = janet_wrap_number(r.x);
+    tup[1] = janet_wrap_number(r.y);
+    tup[2] = janet_wrap_number(r.width);
+    tup[3] = janet_wrap_number(r.height);
+    return janet_wrap_tuple(janet_tuple_end(tup));
 }
 
 static Janet jaylib_wrap_color(Color c) {
@@ -678,4 +659,49 @@ static const JanetAbstractType AT_Camera3D = {
 
 static Camera3D *jaylib_getcamera3d(const Janet *argv, int32_t n) {
     return ((Camera3D *)janet_getabstract(argv, n, &AT_Camera3D));
+}
+
+static const JanetAbstractType AT_Matrix = {
+    "jaylib/matrix",
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+};
+
+static Matrix *jaylib_getmatrix(const Janet *argv, int32_t n) {
+    return ((Matrix *)janet_getabstract(argv, n, &AT_Matrix));
+}
+
+static const JanetAbstractType AT_VrDeviceInfo = {
+    "jaylib/vr-device-info",
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+};
+
+static VrDeviceInfo *jaylib_getvrdeviceinfo(const Janet *argv, int32_t n) {
+    return ((VrDeviceInfo *)janet_getabstract(argv, n, &AT_VrDeviceInfo));
+}
+
+static const JanetAbstractType AT_Shader = {
+    "jaylib/shader",
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+};
+
+static Shader *jaylib_getshader(const Janet *argv, int32_t n) {
+    return ((Shader *)janet_getabstract(argv, n, &AT_Shader));
 }

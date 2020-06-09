@@ -598,7 +598,9 @@ static Janet cfun_GetWorldToScreen(int32_t argc, Janet *argv) {
 static Janet cfun_GetCameraMatrix(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 1);
     Camera3D *camera = jaylib_getcamera3d(argv, 1);
-    return jaylib_wrap_matrix(GetCameraMatrix(*camera));
+    Matrix *matrix = janet_abstract(&AT_Matrix, sizeof(Matrix));
+    *matrix = GetCameraMatrix(*camera);
+    return janet_wrap_abstract(matrix);
 }
 
 static Janet cfun_GetTouchX(int32_t argc, Janet *argv) {

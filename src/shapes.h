@@ -353,7 +353,8 @@ static Janet cfun_GetCollisionRec(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 2);
     Rectangle rec1 = jaylib_getrect(argv, 0);
     Rectangle rec2 = jaylib_getrect(argv, 1);
-    return jaylib_wrap_rectangle(GetCollisionRec(rec1, rec2));
+    Rectangle result = GetCollisionRec(rec1, rec2);
+    return jaylib_wrap_rectangle(result);
 }
 static Janet cfun_CheckCollisionPointRec(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 2);
@@ -378,6 +379,7 @@ static Janet cfun_CheckCollisionPointTriangle(int32_t argc, Janet *argv) {
 }
 
 static JanetReg shapes_cfuns[] = {
+    // Basic shapes drawing functions
     {"draw-pixel", cfun_DrawPixel, NULL},
     {"draw-pixel-v", cfun_DrawPixelV, NULL},
     {"draw-line", cfun_DrawLine, NULL},
@@ -409,6 +411,7 @@ static JanetReg shapes_cfuns[] = {
     {"draw-triangle-fan", cfun_DrawTriangleFan, NULL},
     {"draw-poly", cfun_DrawPoly, NULL},
     {"set-shapes-texture", cfun_SetShapesTexture, NULL},
+    // Basic shapes collision detection functions
     {"check-collision-recs", cfun_CheckCollisionRecs, NULL},
     {"check-collision-circles", cfun_CheckCollisionCircles, NULL},
     {"check-collision-circle-rec", cfun_CheckCollisionCircleRec, NULL},

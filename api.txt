@@ -311,19 +311,19 @@
 [x] void DrawGizmo(Vector3 position)
 
 // Model loading/unloading functions
-[!] Model LoadModel(const char *fileName)
-[!] Model LoadModelFromMesh(Mesh mesh)
-[!] void UnloadModel(Model model)
+[?] Model LoadModel(const char *fileName)
+[?] Model LoadModelFromMesh(Mesh mesh)
+[?] void UnloadModel(Model model)
 
 // Mesh loading/unloading functions
-[!] Mesh *LoadMeshes(const char *fileName, int *meshCount)
-[!] void ExportMesh(Mesh mesh, const char *fileName)
-[!] void UnloadMesh(Mesh *mesh)
+[?] Mesh *LoadMeshes(const char *fileName, int *meshCount)
+[?] void ExportMesh(Mesh mesh, const char *fileName)
+[?] void UnloadMesh(Mesh *mesh)
 
 // Material loading/unloading functions
-[ ] Material *LoadMaterials(const char *fileName, int *materialCount)
-[ ] Material LoadMaterialDefault(void)
-[ ] void UnloadMaterial(Material material)
+[?] Material *LoadMaterials(const char *fileName, int *materialCount)
+[?] Material LoadMaterialDefault(void)
+[?] void UnloadMaterial(Material material)
 [!?!] void SetMaterialTexture(Material *material, int mapType, Texture2D texture)
 [ ] void SetModelMeshMaterial(Model *model, int meshId, int materialId)
 
@@ -351,8 +351,8 @@
 [ ] void MeshBinormals(Mesh *mesh)
 
 // Model drawing functions
-[!] void DrawModel(Model model, Vector3 position, float scale, Color tint)
-[ ] void DrawModelEx(Model model, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale, Color tint)
+[?] void DrawModel(Model model, Vector3 position, float scale, Color tint)
+[?] void DrawModelEx(Model model, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale, Color tint)
 [ ] void DrawModelWires(Model model, Vector3 position, float scale, Color tint)
 [ ] void DrawModelWiresEx(Model model, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale, Color tint)
 [ ] void DrawBoundingBox(BoundingBox box, Color color)
@@ -371,41 +371,41 @@
 [ ] RayHitInfo GetCollisionRayGround(Ray ray, float groundHeight)
 
 // Shader loading/unloading functions
-[ ] char *LoadText(const char *fileName)
-[ ] Shader LoadShader(const char *vsFileName, const char *fsFileName)
-[ ] Shader LoadShaderCode(char *vsCode, char *fsCode)
-[ ] void UnloadShader(Shader shader)
+[?] char *LoadText(const char *fileName)
+[?] Shader LoadShader(const char *vsFileName, const char *fsFileName)
+[?] Shader LoadShaderCode(char *vsCode, char *fsCode)
+[?] void UnloadShader(Shader shader)
 
-[ ] Shader GetShaderDefault(void)
-[ ] Texture2D GetTextureDefault(void)
+[?] Shader GetShaderDefault(void)
+[?] Texture2D GetTextureDefault(void)
 
 // Shader configuration functions
-[ ] int GetShaderLocation(Shader shader, const char *uniformName)
+[?] int GetShaderLocation(Shader shader, const char *uniformName)
 [ ] void SetShaderValue(Shader shader, int uniformLoc, const void *value, int uniformType)
 [ ] void SetShaderValueV(Shader shader, int uniformLoc, const void *value, int uniformType, int count)
-[ ] void SetShaderValueMatrix(Shader shader, int uniformLoc, Matrix mat)
-[ ] void SetShaderValueTexture(Shader shader, int uniformLoc, Texture2D texture)
-[ ] void SetMatrixProjection(Matrix proj)
-[ ] void SetMatrixModelview(Matrix view)
-[ ] Matrix GetMatrixModelview()
+[?] void SetShaderValueMatrix(Shader shader, int uniformLoc, Matrix mat)
+[?] void SetShaderValueTexture(Shader shader, int uniformLoc, Texture2D texture)
+[?] void SetMatrixProjection(Matrix proj)
+[?] void SetMatrixModelview(Matrix view)
+[?] Matrix GetMatrixModelview()
 
 // Shading begin/end functions
-[ ] void BeginShaderMode(Shader shader)
-[ ] void EndShaderMode(void)
-[ ] void BeginBlendMode(int mode)
-[ ] void EndBlendMode(void)
-[ ] void BeginScissorMode(int x, int y, int width, int height)
-[ ] void EndScissorMode(void)
+[?] void BeginShaderMode(Shader shader)
+[?] void EndShaderMode(void)
+[?] void BeginBlendMode(int mode)
+[?] void EndBlendMode(void)
+[?] void BeginScissorMode(int x, int y, int width, int height)
+[?] void EndScissorMode(void)
 
 // VR control functions
-[ ] void InitVrSimulator(void)
-[ ] void CloseVrSimulator(void)
-[ ] void UpdateVrTracking(Camera *camera)
-[ ] void SetVrConfiguration(VrDeviceInfo info, Shader distortion)
-[ ] bool IsVrSimulatorReady(void)
-[ ] void ToggleVrMode(void)
-[ ] void BeginVrDrawing(void)
-[ ] void EndVrDrawing(void)
+[?] void InitVrSimulator(void)
+[?] void CloseVrSimulator(void)
+[?] void UpdateVrTracking(Camera *camera)
+[?] void SetVrConfiguration(VrDeviceInfo info, Shader distortion)
+[?] bool IsVrSimulatorReady(void)
+[?] void ToggleVrMode(void)
+[?] void BeginVrDrawing(void)
+[?] void EndVrDrawing(void)
 
 // Audio device management functions
 [x] void InitAudioDevice(void)

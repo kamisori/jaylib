@@ -52,7 +52,7 @@
   (test "get-mouse-ray:" get-mouse-ray [(get-mouse-position) c])
   (test "get-world->screen"
         get-world->screen
-        [((get-mouse-ray (get-mouse-position) c) :position)
+        [((get-mouse-ray (get-mouse-position) c) 0)
           c])
   (test "get-camera-matrix" get-camera-matrix c)
   (test "color->int" color->int :green)
@@ -73,12 +73,21 @@
 #  (test "check-collision-point-triangle" check-collision-point-triangle [Vector2 point, Vector2 p1, Vector2 p2, Vector2 p3])
   (test "load-model" load-model ["test/turret.obj"])
   (test "load-texture" load-texture ["test/turret_diffuse.png"])
-  (let [model (load-model "test/turret.obj")]
-    (test "draw-model" draw-model [model [2 2 2] 1.0 :white]))
-  (let [model (load-model "test/turret.obj")
-        texture (load-texture "test/turret_diffuse.png")]
-    (set-model-texture model 0 :map-diffuse texture)
-    (test "draw-model" draw-model [model [2 2 2] 1.0 :white]))
+  #(let [model (load-model "test/turret.obj")]
+  #  (test "draw-model" draw-model [model [2 2 2] 1.0 :white]))
+  #(let [model (load-model "test/turret.obj")
+  #      material (load-material-default)
+  #      texture (load-texture "test/turret_diffuse.png")]
+  #  (set-material-texture material :map-diffuse texture)
+  #  (print "(get model :materials)")
+  #  (print (get model :materials))
+  #  (print "(put model :materials [material])")
+  #  (print (put model :materials [material]))
+  #  (test "draw-model" draw-model [model [2 2 2] 1.0 :white]))
+  #(let [model (load-model "test/turret.obj")
+  #      texture (load-texture "test/turret_diffuse.png")]
+  #  (set-model-texture model 0 :map-diffuse texture)
+  #  (test "draw-model" draw-model [model [2 2 2] 1.0 :white]))
   
   (each x [1 2.4 3.3 3.9 4.4 5]
     (def s (/ 2 x))

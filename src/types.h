@@ -199,7 +199,6 @@ static int jaylib_castdef(const Janet *argv, int32_t n, const KeyDef *defs, int 
     while (lo <= hi) {
         int mid = (lo + hi) / 2;
         int cmp = strcmp(defs[mid].name, name);
-        printf(defs[mid].name);
         if (cmp < 0) {
             lo = mid + 1;
         } else if (cmp > 0) {

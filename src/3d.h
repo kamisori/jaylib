@@ -216,6 +216,32 @@ static Janet cfun_DrawModel(int32_t argc, Janet *argv) {
     return janet_wrap_nil();
 }
 
+static Janet cfun_SetModelTexture(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 4);
+    Model *model = jaylib_getmodel(argv, 0);
+    int materialslot = janet_getinteger(argv, 1);
+    int maptype = jaylib_getmaptype(argv, 2);
+    Texture2D *texture = jaylib_gettexture2d(argv, 3);
+    SetMaterialTexture(&(model->materials[materialslot]), maptype, *texture);
+    return janet_wrap_nil();
+}
+
+static Janet cfun_SetMaterialTexture(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 3);
+    Material *material = jaylib_getmaterial(argv, 0);
+    int maptype = jaylib_getmaptype(argv, 1);
+    Texture2D *texture = jaylib_gettexture2d(argv, 2);
+    SetMaterialTexture(material, maptype, *texture);
+    return janet_wrap_nil();
+}
+
+static Janet cfun_LoadMaterialDefault(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 0);
+    Material *material = janet_abstract(&AT_Material, sizeof(Material));
+    *material = LoadMaterialDefault();
+    return janet_wrap_abstract(material);
+}
+
 static JanetReg threed_cfuns[] = {
     {"draw-line-3d", cfun_DrawLine3D, NULL},
     {"draw-circle-3d", cfun_DrawCircle3D, NULL},
@@ -240,5 +266,8 @@ static JanetReg threed_cfuns[] = {
     {"load-meshes", cfun_LoadMeshes, NULL},
     {"export-mesh", cfun_ExportMesh, NULL},
     {"unload-mesh", cfun_UnloadMesh, NULL},
+    {"load-material-default", cfun_LoadMaterialDefault, NULL},
+    {"set-model-texture", cfun_SetModelTexture, NULL},
+    {"set-material-texture", cfun_SetMaterialTexture, NULL},
     {NULL, NULL, NULL}
 };

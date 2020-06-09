@@ -199,6 +199,7 @@ static int jaylib_castdef(const Janet *argv, int32_t n, const KeyDef *defs, int 
     while (lo <= hi) {
         int mid = (lo + hi) / 2;
         int cmp = strcmp(defs[mid].name, name);
+        printf(defs[mid].name);
         if (cmp < 0) {
             lo = mid + 1;
         } else if (cmp > 0) {
@@ -303,6 +304,26 @@ static Color jaylib_getcolor(const Janet *argv, int32_t n) {
         }
         janet_panicf("unknown color :%s", name);
     }
+}
+
+static const KeyDef material_map_defs[] = {
+    {"map-albedo", MAP_ALBEDO},
+    {"map-brdf", MAP_BRDF},
+    {"map-cubemap", MAP_CUBEMAP},
+    {"map-diffuse", MAP_ALBEDO},
+    {"map-emission", MAP_EMISSION},
+    {"map-height", MAP_HEIGHT},
+    {"map-irradiance", MAP_IRRADIANCE},
+    {"map-metalness", MAP_METALNESS},
+    {"map-normal", MAP_NORMAL},
+    {"map-occlusion", MAP_OCCLUSION},
+    {"map-prefilter", MAP_PREFILTER},
+    {"map-roughness", MAP_ROUGHNESS},
+    {"map-specular", MAP_METALNESS},
+};
+
+static int jaylib_getmaptype(const Janet *argv, int32_t n) {
+    return jaylib_castdef(argv, n, material_map_defs, sizeof(material_map_defs) / sizeof(KeyDef));
 }
 
 static float idx_getfloat(JanetView idx, int index) {
@@ -568,6 +589,21 @@ static const JanetAbstractType AT_Font = {
 
 static Font *jaylib_getfont(const Janet *argv, int32_t n) {
     return ((Font *)janet_getabstract(argv, n, &AT_Font));
+}
+
+static const JanetAbstractType AT_Material = {
+    "jaylib/material",
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+};
+
+static Material *jaylib_getmaterial(const Janet *argv, int32_t n) {
+    return ((Material *)janet_getabstract(argv, n, &AT_Material));
 }
 
 static const JanetAbstractType AT_Model = {

@@ -76,15 +76,10 @@
   (let [model (load-model "test/turret.obj")]
     (test "draw-model" draw-model [model [2 2 2] 1.0 :white]))
   (let [model (load-model "test/turret.obj")
-        material (get (get model :materials) 0)
-        map-diffuse (get (get material :maps) :map-diffuse)
         texture (load-texture "test/turret_diffuse.png")]
-      (print model)
-      (print material)
-      (print map-diffuse)
-      (print texture)
-    (put map-diffuse :texture texture)
+    (set-model-texture model 0 :map-diffuse texture)
     (test "draw-model" draw-model [model [2 2 2] 1.0 :white]))
+  
   (each x [1 2.4 3.3 3.9 4.4 5]
     (def s (/ 2 x))
     (draw-cube-texture lenna-t [2 x 2] s s 0.125 :white))

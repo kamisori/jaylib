@@ -8,7 +8,7 @@
   (case o
     :macos '["-Iraylib/src" "-ObjC"]
     #default
-    '["-Iraylib/src"]))
+    '["-Iraylib/src" "-Iraylib/src/external/glfw/include"]))
 
 (def lflags
   (case o

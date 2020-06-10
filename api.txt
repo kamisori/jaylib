@@ -196,7 +196,7 @@
 [x] Image LoadImage(const char *fileName)
 [x] Image LoadImageEx(Color *pixels, int width, int height)
 [ ] Image LoadImagePro(void *data, int width, int height, int format)
-[ ] Image LoadImageRaw(const char *fileName, int width, int height, int format, int headerSize)
+[?] Image LoadImageRaw(const char *fileName, int width, int height, int format, int headerSize)
 [x] void ExportImage(Image image, const char *fileName)
 [x] void ExportImageAsCode(Image image, const char *fileName)
 [x] Texture2D LoadTexture(const char *fileName)

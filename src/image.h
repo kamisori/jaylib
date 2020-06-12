@@ -19,6 +19,18 @@ static Janet cfun_LoadImageEx(int32_t argc, Janet *argv) {
     return janet_wrap_nil();
 }
 
+static Janet cfun_LoadImageRaw(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 5);
+    const char *fileName = janet_getcstring(argv, 0);
+    int width = janet_getinteger(argv, 1);
+    int height = janet_getinteger(argv, 2);
+    int format = jaylib_getpixelformat(argv, 3);
+    int headerSize = janet_getinteger(argv, 4);
+    Image *image = janet_abstract(&AT_Image, sizeof(Image));
+    *image = LoadImageRaw(fileName, width, height, format, headerSize);
+    return janet_wrap_abstract(image);
+}
+
 static Janet cfun_ExportImage(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 2);
     Image image = *jaylib_getimage(argv, 0);
@@ -675,6 +687,7 @@ RLAPI void DrawTextureNPatch(Texture2D texture, NPatchInfo nPatchInfo, Rectangle
 static const JanetReg image_cfuns[] = {
     {"load-image-1", cfun_LoadImage, NULL}, // load-image is janet core function, don't want to overwrite if we use (use jaylib)
     {"load-image-ex", cfun_LoadImageEx, NULL},
+    {"load-image-raw", cfun_LoadImageRaw, NULL},
     {"export-image", cfun_ExportImage, NULL},
     {"export-image-as-code", cfun_ExportImageAsCode, NULL},
     {"load-texture", cfun_LoadTexture, NULL},

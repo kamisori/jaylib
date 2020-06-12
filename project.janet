@@ -8,7 +8,7 @@
   (case o
     :macos '["-Iraylib/src" "-ObjC"]
     #default
-    '["-Iraylib/src" "-Iraylib/src/external/glfw/include"]))
+    '["-Iraylib/src" "-Iraylib/src/external/glfw/include" "-Iraygui/src"]))
 
 (def lflags
   (case o
@@ -37,14 +37,21 @@
            "raylib/src/textures.c"
            "raylib/src/utils.c"]
 
-  :headers ["src/core.h"
+  :headers [
+            # raylib headers
+            "src/core.h"
             "src/types.h"
             "src/audio.h"
             "src/gestures.h"
             "src/text.h"
             "src/image.h"
             "src/shapes.h"
-            "src/3d.h"]
+            "src/3d.h"
+           
+            # raygui headers
+            "raygui/src/gui_textbox_extended.h"
+            "raygui/src/raygui.h"
+            "raygui/src/ricons.h"]
 
   :lflags lflags)
 

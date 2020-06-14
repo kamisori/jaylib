@@ -1,3 +1,101 @@
+static const KeyDef gui_control_state [] = {
+    {"gui-state-disabled", GUI_STATE_DISABLED},
+    {"gui-state-focused", GUI_STATE_FOCUSED},
+    {"gui-state-normal", GUI_STATE_NORMAL},
+    {"gui-state-pressed", GUI_STATE_PRESSED},
+};
+
+static int jaylib_getgui_control_state(const Janet *argv, int32_t n) {
+    return jaylib_castdef(argv, n, gui_control_state, sizeof(gui_control_state) / sizeof(KeyDef));
+}
+
+// Gui controls
+static const KeyDef gui_control [] = {
+    {"button", BUTTON},         // IMAGEBUTTON
+    {"checkbox", CHECKBOX},
+    {"colorpicker", COLORPICKER},
+    {"combobox", COMBOBOX},
+    {"default", DEFAULT},
+    {"dropdownbox", DROPDOWNBOX},
+    {"label", LABEL},          // LABELBUTTON
+    {"listview", LISTVIEW},
+    {"progressbar", PROGRESSBAR},
+    {"scrollbar", SCROLLBAR},
+    {"slider", SLIDER},         // SLIDERBAR
+    {"spinner", SPINNER},
+    {"statusbar", STATUSBAR},
+    {"textbox", TEXTBOX},        // TEXTBOXMULTI
+    {"toggle", TOGGLE},         // TOGGLEGROUP
+    {"valuebox", VALUEBOX},
+};
+
+static int jaylib_getgui_control(const Janet *argv, int32_t n) {
+    return jaylib_castdef(argv, n, gui_control, sizeof(gui_control) / sizeof(KeyDef));
+}
+
+// Gui base properties for every control
+static const KeyDef gui_control_property [] = {
+    {"arrow-padding", ARROW_PADDING},
+    {"arrows-size", ARROWS_SIZE},
+    {"arrows-visible", ARROWS_VISIBLE},
+    {"background-color", BACKGROUND_COLOR},
+    {"base-color-disabled", BASE_COLOR_DISABLED},
+    {"base-color-focused", BASE_COLOR_FOCUSED},
+    {"base-color-normal", BASE_COLOR_NORMAL},
+    {"base-color-pressed", BASE_COLOR_PRESSED},
+    {"border-color-disabled", BORDER_COLOR_DISABLED},
+    {"border-color-focused", BORDER_COLOR_FOCUSED},
+    {"border-color-normal", BORDER_COLOR_NORMAL},
+    {"border-color-pressed", BORDER_COLOR_PRESSED},
+    {"border-width", BORDER_WIDTH},
+    {"check-padding", CHECK_PADDING},
+    {"color-selected-bg", COLOR_SELECTED_BG},
+    {"color-selected-fg", COLOR_SELECTED_FG},
+    {"color-selector-size", COLOR_SELECTOR_SIZE},
+    {"combo-button-padding", COMBO_BUTTON_PADDING},
+    {"combo-button-width", COMBO_BUTTON_WIDTH},
+    {"dropdown-items-padding", DROPDOWN_ITEMS_PADDING},
+    {"group-padding", GROUP_PADDING},
+    {"gui-text-align-center", GUI_TEXT_ALIGN_CENTER},
+    {"gui-text-align-left", GUI_TEXT_ALIGN_LEFT},
+    {"gui-text-align-right", GUI_TEXT_ALIGN_RIGHT},
+    {"huebar-padding", HUEBAR_PADDING},                // Right hue bar separation from panel
+    {"huebar-selector-height", HUEBAR_SELECTOR_HEIGHT},        // Right hue bar selector height
+    {"huebar-selector-overflow", HUEBAR_SELECTOR_OVERFLOW},       // Right hue bar selector overflow
+    {"huebar-width", HUEBAR_WIDTH},                  // Right hue bar width
+    {"line-color", LINE_COLOR},
+    {"list-items-height", LIST_ITEMS_HEIGHT},
+    {"list-items-padding", LIST_ITEMS_PADDING},
+    {"progress-padding", PROGRESS_PADDING},
+    {"reserved", RESERVED},
+    {"scroll-padding", SCROLL_PADDING},
+    {"scroll-slider-padding", SCROLL_SLIDER_PADDING},
+    {"scroll-slider-size", SCROLL_SLIDER_SIZE},
+    {"scroll-speed", SCROLL_SPEED},
+    {"scrollbar-left-side", SCROLLBAR_LEFT_SIDE},
+    {"scrollbar-right-side", SCROLLBAR_RIGHT_SIDE},
+    {"scrollbar-side", SCROLLBAR_SIDE},
+    {"scrollbar-width", SCROLLBAR_WIDTH},
+    {"slider-padding", SLIDER_PADDING},
+    {"slider-width", SLIDER_WIDTH},
+    {"spin-button-padding", SPIN_BUTTON_PADDING},
+    {"spin-button-width", SPIN_BUTTON_WIDTH},
+    {"text-alignment", TEXT_ALIGNMENT},
+    {"text-color-disabled", TEXT_COLOR_DISABLED},
+    {"text-color-focused", TEXT_COLOR_FOCUSED},
+    {"text-color-normal", TEXT_COLOR_NORMAL},
+    {"text-color-pressed", TEXT_COLOR_PRESSED},
+    {"text-inner-padding", TEXT_INNER_PADDING},
+    {"text-lines-padding", TEXT_LINES_PADDING},
+    {"text-padding", TEXT_PADDING},
+    {"text-size", TEXT_SIZE},
+    {"text-spacing", TEXT_SPACING},
+};
+
+static int jaylib_getgui_control_property(const Janet *argv, int32_t n) {
+    return jaylib_castdef(argv, n, gui_control_property, sizeof(gui_control_property) / sizeof(KeyDef));
+}
+
 static Janet cfun_GuiEnable(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 0);
     GuiEnable();                                         // Enable gui controls (global state)
@@ -31,7 +129,7 @@ static Janet cfun_GuiFade(int32_t argc, Janet *argv) {
 
 static Janet cfun_GuiSetState(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 1);
-    int state = janet_getinteger(argv, 0);
+    int state = jaylib_getgui_control_state(argv, 0);
     GuiSetState(state);                                  // Set gui state (global state)
     return janet_wrap_nil();
 }
@@ -61,17 +159,17 @@ static Janet cfun_GuiGetFont(int32_t argc, Janet *argv) {
 // Style set/get functions
 static Janet cfun_GuiSetStyle(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 3);
-    int control = janet_getinteger(argv, 0);
-    int property = janet_getinteger(argv, 1);
-    int value = janet_getinteger(argv, 2);
+    int control = jaylib_getgui_control(argv, 0);
+    int property = jaylib_getgui_control_property(argv, 1);
+    int value = jaylib_getgui_control_property(argv, 2);
     GuiSetStyle(control, property, value);       // Set one style property
     return janet_wrap_nil();
 }
 
 static Janet cfun_GuiGetStyle(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 2);
-    int control = janet_getinteger(argv, 0);
-    int property = janet_getinteger(argv, 1);
+    int control = jaylib_getgui_control(argv, 0);
+    int property = jaylib_getgui_control_property(argv, 1);
     int result = GuiGetStyle(control, property);                   // Get one style property
     return janet_wrap_integer(result);
 }
@@ -235,6 +333,13 @@ static Janet cfun_GuiDropdownBox(int32_t argc, Janet *argv) {
     return janet_wrap_boolean(GuiDropdownBox(bounds, text, active, editMode));  // Dropdown Box control, returns selected item
 }
 
+static Janet jaylib_wrap_gui_integer(bool result, int value) {
+    JanetKV *g_r = janet_struct_begin(2);
+    janet_struct_put(g_r, janet_ckeywordv("result"), janet_wrap_boolean(result));
+    janet_struct_put(g_r, janet_ckeywordv("value"), janet_wrap_integer(value));
+    return janet_wrap_struct(janet_struct_end(g_r));
+}
+
 static Janet cfun_GuiSpinner(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 6);
     Rectangle bounds = jaylib_getrect(argv, 0);
@@ -243,8 +348,8 @@ static Janet cfun_GuiSpinner(int32_t argc, Janet *argv) {
     int minValue = janet_getinteger(argv, 3);
     int maxValue = janet_getinteger(argv, 4);
     bool editMode = janet_getboolean(argv, 5);
-    bool result = GuiSpinner(bounds, text, value, minValue, maxValue, editMode);     // Spinner control, returns selected value
-    return janet_wrap_boolean(result);
+    bool result = GuiSpinner(bounds, text, &value, minValue, maxValue, editMode);     // Spinner control, returns selected value
+    return jaylib_wrap_gui_integer(result, value);
 }
 
 static Janet cfun_GuiValueBox(int32_t argc, Janet *argv) {
@@ -255,18 +360,25 @@ static Janet cfun_GuiValueBox(int32_t argc, Janet *argv) {
     int minValue = janet_getinteger(argv, 3);
     int maxValue = janet_getinteger(argv, 4);
     bool editMode = janet_getboolean(argv, 5);
-    bool result = GuiValueBox(bounds, text, value, minValue, maxValue, editMode);    // Value Box control, updates input text with numbers
-    return janet_wrap_boolean(result);
+    bool result = GuiValueBox(bounds, text, &value, minValue, maxValue, editMode);    // Value Box control, updates input text with numbers
+    return jaylib_wrap_gui_integer(result, value);
+}
+
+static Janet jaylib_wrap_gui_string(bool result, const char *value) {
+    JanetKV *g_r = janet_struct_begin(2);
+    janet_struct_put(g_r, janet_ckeywordv("result"), janet_wrap_boolean(result));
+    janet_struct_put(g_r, janet_ckeywordv("value"), janet_wrap_string(value));
+    return janet_wrap_struct(janet_struct_end(g_r));
 }
 
 static Janet cfun_GuiTextBox(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 4);
     Rectangle bounds = jaylib_getrect(argv, 0);
-    const char *text = jaylib_getcstring(argv, 1);
+    char *text = jaylib_getcstring(argv, 1);
     int textSize = janet_getinteger(argv, 2);
     bool editMode = janet_getboolean(argv, 3);
     bool result = GuiTextBox(bounds, text, textSize, editMode);                   // Text Box control, updates input text
-    return janet_wrap_boolean(result);
+    return jaylib_wrap_gui_string(result, text);
 }
 
 static Janet cfun_GuiTextBoxMulti(int32_t argc, Janet *argv) {
@@ -276,7 +388,7 @@ static Janet cfun_GuiTextBoxMulti(int32_t argc, Janet *argv) {
     int textSize = janet_getinteger(argv, 2);
     bool editMode = janet_getboolean(argv, 3);
     bool result = GuiTextBoxMulti(bounds, text, textSize, editMode);              // Text Box control with multiple lines
-    return janet_wrap_boolean(result);
+    return jaylib_wrap_gui_string(result, text);
 }
 
 static Janet cfun_GuiSlider(int32_t argc, Janet *argv) {

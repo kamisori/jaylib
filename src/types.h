@@ -400,6 +400,9 @@ static int jaylib_getpixelformat(const Janet *argv, int32_t n) {
     return jaylib_castdef(argv, n, pixel_format_defs, sizeof(pixel_format_defs) / sizeof(KeyDef));
 }
 
+
+
+
 static Janet jaylib_wrap_vec2(Vector2 x) {
     Janet *tup = janet_tuple_begin(2);
     tup[0] = janet_wrap_integer(x.x);

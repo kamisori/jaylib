@@ -452,6 +452,7 @@ static Janet jaylib_wrap_color(Color c) {
     return janet_wrap_tuple(janet_tuple_end(t));
 }
 
+// see https://github.com/andrewchambers/janet-big/blob/9c658502c88f1ec3ebb80e2486068da41a346b52/big.c#L76
 static const JanetAbstractType AT_TextureCubemap = {
     "jaylib/texture-cubemap",
     NULL,

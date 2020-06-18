@@ -588,20 +588,21 @@ static Janet cfun_GuiComboBox(int32_t argc, Janet *argv) {
     return janet_wrap_integer(result);
 }
 
+static Janet jaylib_wrap_gui_integer(bool result, int value) {
+    JanetKV *g_r = janet_struct_begin(2);
+    janet_struct_put(g_r, janet_ckeywordv("result"), janet_wrap_boolean(result));
+    janet_struct_put(g_r, janet_ckeywordv("value"), janet_wrap_integer(value));
+    return janet_wrap_struct(janet_struct_end(g_r));
+}
+
 static Janet cfun_GuiDropdownBox(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 4);
     Rectangle bounds = jaylib_getrect(argv, 0);
     const char *text = jaylib_getcstring(argv, 1);
     int active = janet_getinteger(argv, 2);
     bool editMode = janet_getboolean(argv, 3);
-    return janet_wrap_boolean(GuiDropdownBox(bounds, text, active, editMode));  // Dropdown Box control, returns selected item
-}
-
-static Janet jaylib_wrap_gui_integer(bool result, int value) {
-    JanetKV *g_r = janet_struct_begin(2);
-    janet_struct_put(g_r, janet_ckeywordv("result"), janet_wrap_boolean(result));
-    janet_struct_put(g_r, janet_ckeywordv("value"), janet_wrap_integer(value));
-    return janet_wrap_struct(janet_struct_end(g_r));
+    bool result = GuiDropdownBox(bounds, text, &active, editMode);  // Dropdown Box control, returns selected item
+    return jaylib_wrap_gui_integer(result, active);
 }
 
 static Janet cfun_GuiSpinner(int32_t argc, Janet *argv) {
@@ -632,12 +633,28 @@ static Janet jaylib_wrap_gui_string(bool result, const char *value) {
     JanetKV *g_r = janet_struct_begin(2);
     janet_struct_put(g_r, janet_ckeywordv("result"), janet_wrap_boolean(result));
     janet_struct_put(g_r, janet_ckeywordv("value"), janet_wrap_string(value));
+    printf("c-wrap:");
+    printf(value);
+    printf("%d", strlen(value));
+    printf("\r\n");
     return janet_wrap_struct(janet_struct_end(g_r));
 }
 
 static Janet cfun_GuiTextBox(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 4);
     Rectangle bounds = jaylib_getrect(argv, 0);
+
+    const uint8_t *jstr = janet_getstring(argv, 1);
+    const char *cstr = (const char *)jstr;
+    printf("c:(");
+    printf(cstr);
+    printf(")");
+    printf("%d", strlen(cstr));
+    printf("j:(");
+    printf(jstr);
+    printf(")");
+    printf("%d", (size_t) janet_string_length(jstr));
+    printf("\r\n");
     char *text = jaylib_getcstring(argv, 1);
     int textSize = janet_getinteger(argv, 2);
     bool editMode = janet_getboolean(argv, 3);
@@ -648,10 +665,10 @@ static Janet cfun_GuiTextBox(int32_t argc, Janet *argv) {
 static Janet cfun_GuiTextBoxMulti(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 4);
     Rectangle bounds = jaylib_getrect(argv, 0);
-    const char *text = jaylib_getcstring(argv, 1);
+    char *text = jaylib_getcstring(argv, 1);
     int textSize = janet_getinteger(argv, 2);
     bool editMode = janet_getboolean(argv, 3);
-    bool result = GuiTextBoxMulti(bounds, text, textSize, editMode);              // Text Box control with multiple lines
+    bool result = GuiTextBoxMulti(bounds, &text, textSize, editMode);              // Text Box control with multiple lines
     return jaylib_wrap_gui_string(result, text);
 }
 
@@ -663,7 +680,6 @@ static Janet cfun_GuiSlider(int32_t argc, Janet *argv) {
     float value = janet_getnumber(argv, 3);
     float minValue = janet_getnumber(argv, 4);
     float maxValue = janet_getnumber(argv, 5);
-    bool editMode = janet_getboolean(argv, 6);
     float result = GuiSlider(bounds, textLeft, textRight, value, minValue, maxValue);       // Slider control, returns selected value
     return janet_wrap_number(result);
 }
@@ -676,7 +692,6 @@ Rectangle bounds = jaylib_getrect(argv, 0);
     float value = janet_getnumber(argv, 3);
     float minValue = janet_getnumber(argv, 4);
     float maxValue = janet_getnumber(argv, 5);
-    bool editMode = janet_getboolean(argv, 6);
     float result = GuiSliderBar(bounds, textLeft, textRight, value, minValue, maxValue);    // Slider Bar control, returns selected value
     return janet_wrap_number(result);
 }
@@ -689,7 +704,6 @@ static Janet cfun_GuiProgressBar(int32_t argc, Janet *argv) {
     float value = janet_getnumber(argv, 3);
     float minValue = janet_getnumber(argv, 4);
     float maxValue = janet_getnumber(argv, 5);
-    bool editMode = janet_getboolean(argv, 6);
     float result = GuiProgressBar(bounds, textLeft, textRight, value, minValue, maxValue);  // Progress Bar control, shows current progress value
     return janet_wrap_number(result);
 }
@@ -729,6 +743,14 @@ static Janet cfun_GuiGrid(int32_t argc, Janet *argv) {
 }
 
 
+
+static Janet jaylib_wrap_gui_listviewresult(int active, int scrollindex) {
+    JanetKV *g_r = janet_struct_begin(2);
+    janet_struct_put(g_r, janet_ckeywordv("active"), janet_wrap_integer(active));
+    janet_struct_put(g_r, janet_ckeywordv("scrollindex"), janet_wrap_integer(scrollindex));
+    return janet_wrap_struct(janet_struct_end(g_r));
+}
+
 // Advance controls set
 static Janet cfun_GuiListView(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 4);
@@ -737,7 +759,7 @@ static Janet cfun_GuiListView(int32_t argc, Janet *argv) {
     int scrollIndex = 0;
     int active = janet_getinteger(argv, 2);
     int result = GuiListView(bounds, text, &scrollIndex, active);            // List View control, returns selected list item index
-    return janet_wrap_integer(result);
+    return jaylib_wrap_gui_listviewresult(result, scrollIndex);
 }
 
 static Janet cfun_GuiListViewEx(int32_t argc, Janet *argv) {
@@ -748,8 +770,8 @@ static Janet cfun_GuiListViewEx(int32_t argc, Janet *argv) {
     int focus = janet_getinteger(argv, 3);
     int scrollIndex = janet_getinteger(argv, 4);
     int active = janet_getinteger(argv, 5);
-    int result = GuiListViewEx(bounds, text, count, focus, scrollIndex, active);      // List View with extended parameters
-    return janet_wrap_integer(result);
+    int result = GuiListViewEx(bounds, text, count, focus, &scrollIndex, active);      // List View with extended parameters
+    return jaylib_wrap_gui_listviewresult(result, scrollIndex);
 }
 
 static Janet cfun_GuiMessageBox(int32_t argc, Janet *argv) {
@@ -762,15 +784,23 @@ static Janet cfun_GuiMessageBox(int32_t argc, Janet *argv) {
     return janet_wrap_integer(result);
 }
 
+
+static Janet jaylib_wrap_text_input_box_result(int result, char* text) {
+    JanetKV *g_r = janet_struct_begin(2);
+    janet_struct_put(g_r, janet_ckeywordv("result"), janet_wrap_integer(result));
+    janet_struct_put(g_r, janet_ckeywordv("text"), janet_wrap_string(text));
+    return janet_wrap_struct(janet_struct_end(g_r));
+}
+
 static Janet cfun_GuiTextInputBox(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 5);
     Rectangle bounds = jaylib_getrect(argv, 0);
     const char *title = jaylib_getcstring(argv, 1);
     const char *message = jaylib_getcstring(argv, 2);
     const char *buttons = jaylib_getcstring(argv, 3);
-    const char *text = jaylib_getcstring(argv, 4);
+    char *text = jaylib_getcstring(argv, 4);
     int result = GuiTextInputBox(bounds, title, message, buttons, text);   // Text Input Box control, ask for text
-    return janet_wrap_integer(result);
+    return jaylib_wrap_text_input_box_result(result, text);
 }
 
 static Janet cfun_GuiColorPicker(int32_t argc, Janet *argv) {

@@ -629,47 +629,64 @@ static Janet cfun_GuiValueBox(int32_t argc, Janet *argv) {
     return jaylib_wrap_gui_integer(result, value);
 }
 
-static Janet jaylib_wrap_gui_string(bool result, const char *value) {
+static Janet jaylib_wrap_gui_string(bool result, char *value) {
     JanetKV *g_r = janet_struct_begin(2);
     janet_struct_put(g_r, janet_ckeywordv("result"), janet_wrap_boolean(result));
     janet_struct_put(g_r, janet_ckeywordv("value"), janet_wrap_string(value));
-    printf("c-wrap:");
-    printf(value);
-    printf("%d", strlen(value));
-    printf("\r\n");
+    janet_struct_put(g_r, janet_ckeywordv("buffer"), janet_wrap_pointer(value));
+    printf("jaylib_wrap_gui_string:value:%s:%zd\r\n", value, strlen(value));
     return janet_wrap_struct(janet_struct_end(g_r));
 }
 
-static Janet cfun_GuiTextBox(int32_t argc, Janet *argv) {
-    janet_fixarity(argc, 4);
-    Rectangle bounds = jaylib_getrect(argv, 0);
+static char *getBuffer(Janet *argv, int32_t buffer, int32_t *buffSize, const char *text) {
+    char *buff = (char *)janet_unwrap_pointer(argv[2]);
 
-    const uint8_t *jstr = janet_getstring(argv, 1);
-    const char *cstr = (const char *)jstr;
-    printf("c:(");
-    printf(cstr);
-    printf(")");
-    printf("%d", strlen(cstr));
-    printf("j:(");
-    printf(jstr);
-    printf(")");
-    printf("%d", (size_t) janet_string_length(jstr));
-    printf("\r\n");
-    char *text = jaylib_getcstring(argv, 1);
-    int textSize = janet_getinteger(argv, 2);
-    bool editMode = janet_getboolean(argv, 3);
-    bool result = GuiTextBox(bounds, text, textSize, editMode);                   // Text Box control, updates input text
-    return jaylib_wrap_gui_string(result, text);
+    if(NULL == buff) {
+        buff = janet_scalloc(sizeof(char), (size_t)(*buffSize+1));
+    }
+
+    int32_t textlen = strlen(text);
+    //check textlen against buffsize
+    if(textlen > *buffSize) {
+        *buffSize += textlen;
+        buff = janet_srealloc(buff, *buffSize);
+    }
+
+    for (int32_t i = 0; i < textlen; i++) {
+        buff[i] = text[i];
+    }
+    printf("cfun_GuiTextBox:buff:%s:%zd\r\n", buff, strlen(buff));
+    printf(":text:%s:%zd\r\n", text, strlen(text));
+    return buff;
+}
+
+static Janet cfun_GuiTextBox(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 5);
+    Rectangle bounds = jaylib_getrect(argv, 0);
+    const char *text = jaylib_getcstring(argv, 1);
+    int32_t buffSize = janet_getinteger(argv, 3);
+
+    char *buff = getBuffer(argv, 2, &buffSize, text);
+
+    bool editMode = janet_getboolean(argv, 4);
+    
+    bool result = GuiTextBox(bounds, buff, buffSize, editMode);                   // Text Box control, updates input text
+    
+    printf("GuiTextBox:post:buff:%s:%zd\r\n", buff, strlen(buff));
+    printf(":text:%s:%zd\r\n", text, strlen(text));
+
+    return jaylib_wrap_gui_string(result, buff);
 }
 
 static Janet cfun_GuiTextBoxMulti(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 4);
     Rectangle bounds = jaylib_getrect(argv, 0);
-    char *text = jaylib_getcstring(argv, 1);
-    int textSize = janet_getinteger(argv, 2);
-    bool editMode = janet_getboolean(argv, 3);
-    bool result = GuiTextBoxMulti(bounds, &text, textSize, editMode);              // Text Box control with multiple lines
-    return jaylib_wrap_gui_string(result, text);
+    const char *text = jaylib_getcstring(argv, 1);
+    int32_t buffSize = janet_getinteger(argv, 3);
+    char *buff = getBuffer(argv, 2, &buffSize, text);
+    bool editMode = janet_getboolean(argv, 4);
+    bool result = GuiTextBoxMulti(bounds, buff, buffSize, editMode);              // Text Box control with multiple lines
+    return jaylib_wrap_gui_string(result, buff);
 }
 
 static Janet cfun_GuiSlider(int32_t argc, Janet *argv) {
@@ -770,7 +787,7 @@ static Janet cfun_GuiListViewEx(int32_t argc, Janet *argv) {
     int focus = janet_getinteger(argv, 3);
     int scrollIndex = janet_getinteger(argv, 4);
     int active = janet_getinteger(argv, 5);
-    int result = GuiListViewEx(bounds, text, count, focus, &scrollIndex, active);      // List View with extended parameters
+    int result = GuiListViewEx(bounds, text, count, &focus, &scrollIndex, active);      // List View with extended parameters
     return jaylib_wrap_gui_listviewresult(result, scrollIndex);
 }
 

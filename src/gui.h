@@ -667,11 +667,11 @@ static Janet cfun_GuiTextBoxMulti(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 4);
     Rectangle bounds = jaylib_getrect(argv, 0);
     const char *text = jaylib_getcstring(argv, 1);
-    int32_t buffSize = janet_getinteger(argv, 3);
+    int32_t buffSize = janet_getinteger(argv, 2);
     char *buff = janet_scalloc(sizeof(char), (size_t)(buffSize+1));
     buff = fillBuffer(buff, &buffSize, text);
 
-    bool editMode = janet_getboolean(argv, 4);
+    bool editMode = janet_getboolean(argv, 3);
     bool result = GuiTextBoxMulti(bounds, buff, buffSize, editMode);              // Text Box control with multiple lines
     return jaylib_wrap_gui_string(result, buff);
 }

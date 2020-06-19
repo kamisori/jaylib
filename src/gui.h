@@ -632,21 +632,13 @@ static Janet cfun_GuiValueBox(int32_t argc, Janet *argv) {
 static Janet jaylib_wrap_gui_string(bool result, char *value) {
     JanetKV *g_r = janet_struct_begin(2);
     janet_struct_put(g_r, janet_ckeywordv("result"), janet_wrap_boolean(result));
-    janet_struct_put(g_r, janet_ckeywordv("value"), janet_wrap_string(value));
-    janet_struct_put(g_r, janet_ckeywordv("buffer"), janet_wrap_pointer(value));
-    printf("jaylib_wrap_gui_string:value:%s:%zd\r\n", value, strlen(value));
+    janet_struct_put(g_r, janet_ckeywordv("value"), janet_cstringv(value));
     return janet_wrap_struct(janet_struct_end(g_r));
 }
 
-static char *getBuffer(Janet *argv, int32_t buffer, int32_t *buffSize, const char *text) {
-    char *buff = (char *)janet_unwrap_pointer(argv[2]);
-
-    if(NULL == buff) {
-        buff = janet_scalloc(sizeof(char), (size_t)(*buffSize+1));
-    }
-
+static char *fillBuffer(char* buff, int32_t *buffSize, const char *text)
+{
     int32_t textlen = strlen(text);
-    //check textlen against buffsize
     if(textlen > *buffSize) {
         *buffSize += textlen;
         buff = janet_srealloc(buff, *buffSize);
@@ -655,26 +647,19 @@ static char *getBuffer(Janet *argv, int32_t buffer, int32_t *buffSize, const cha
     for (int32_t i = 0; i < textlen; i++) {
         buff[i] = text[i];
     }
-    printf("cfun_GuiTextBox:buff:%s:%zd\r\n", buff, strlen(buff));
-    printf(":text:%s:%zd\r\n", text, strlen(text));
     return buff;
 }
 
 static Janet cfun_GuiTextBox(int32_t argc, Janet *argv) {
-    janet_fixarity(argc, 5);
+    janet_fixarity(argc, 4);
     Rectangle bounds = jaylib_getrect(argv, 0);
     const char *text = jaylib_getcstring(argv, 1);
-    int32_t buffSize = janet_getinteger(argv, 3);
+    int32_t buffSize = janet_getinteger(argv, 2);
+    char *buff = janet_scalloc(sizeof(char), (size_t)(buffSize+1));
+    buff = fillBuffer(buff, &buffSize, text);
 
-    char *buff = getBuffer(argv, 2, &buffSize, text);
-
-    bool editMode = janet_getboolean(argv, 4);
-    
+    bool editMode = janet_getboolean(argv, 3);
     bool result = GuiTextBox(bounds, buff, buffSize, editMode);                   // Text Box control, updates input text
-    
-    printf("GuiTextBox:post:buff:%s:%zd\r\n", buff, strlen(buff));
-    printf(":text:%s:%zd\r\n", text, strlen(text));
-
     return jaylib_wrap_gui_string(result, buff);
 }
 
@@ -683,7 +668,9 @@ static Janet cfun_GuiTextBoxMulti(int32_t argc, Janet *argv) {
     Rectangle bounds = jaylib_getrect(argv, 0);
     const char *text = jaylib_getcstring(argv, 1);
     int32_t buffSize = janet_getinteger(argv, 3);
-    char *buff = getBuffer(argv, 2, &buffSize, text);
+    char *buff = janet_scalloc(sizeof(char), (size_t)(buffSize+1));
+    buff = fillBuffer(buff, &buffSize, text);
+
     bool editMode = janet_getboolean(argv, 4);
     bool result = GuiTextBoxMulti(bounds, buff, buffSize, editMode);              // Text Box control with multiple lines
     return jaylib_wrap_gui_string(result, buff);
@@ -815,7 +802,7 @@ static Janet cfun_GuiTextInputBox(int32_t argc, Janet *argv) {
     const char *title = jaylib_getcstring(argv, 1);
     const char *message = jaylib_getcstring(argv, 2);
     const char *buttons = jaylib_getcstring(argv, 3);
-    char *text = jaylib_getcstring(argv, 4);
+    const char *text = jaylib_getcstring(argv, 4);
     int result = GuiTextInputBox(bounds, title, message, buttons, text);   // Text Input Box control, ask for text
     return jaylib_wrap_text_input_box_result(result, text);
 }

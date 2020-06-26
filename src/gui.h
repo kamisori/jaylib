@@ -632,7 +632,7 @@ static Janet cfun_GuiValueBox(int32_t argc, Janet *argv) {
 static Janet jaylib_wrap_gui_string(bool result, char *value) {
     JanetKV *g_r = janet_struct_begin(2);
     janet_struct_put(g_r, janet_ckeywordv("result"), janet_wrap_boolean(result));
-    janet_struct_put(g_r, janet_ckeywordv("value"), janet_cstringv(value));
+    janet_struct_put(g_r, janet_ckeywordv("text"), janet_cstringv(value));
     return janet_wrap_struct(janet_struct_end(g_r));
 }
 
@@ -792,7 +792,7 @@ static Janet cfun_GuiMessageBox(int32_t argc, Janet *argv) {
 static Janet jaylib_wrap_text_input_box_result(int result, char* text) {
     JanetKV *g_r = janet_struct_begin(2);
     janet_struct_put(g_r, janet_ckeywordv("result"), janet_wrap_integer(result));
-    janet_struct_put(g_r, janet_ckeywordv("text"), janet_wrap_string(text));
+    janet_struct_put(g_r, janet_ckeywordv("text"), janet_cstringv(text));
     return janet_wrap_struct(janet_struct_end(g_r));
 }
 
@@ -803,8 +803,12 @@ static Janet cfun_GuiTextInputBox(int32_t argc, Janet *argv) {
     const char *message = jaylib_getcstring(argv, 2);
     const char *buttons = jaylib_getcstring(argv, 3);
     const char *text = jaylib_getcstring(argv, 4);
-    int result = GuiTextInputBox(bounds, title, message, buttons, text);   // Text Input Box control, ask for text
-    return jaylib_wrap_text_input_box_result(result, text);
+    int32_t buffSize = 512;
+    char *buff = janet_scalloc(sizeof(char), (size_t)(buffSize));
+    buff = fillBuffer(buff, &buffSize, text);
+
+    int result = GuiTextInputBox(bounds, title, message, buttons, buff);   // Text Input Box control, ask for text
+    return jaylib_wrap_text_input_box_result(result, buff);
 }
 
 static Janet cfun_GuiColorPicker(int32_t argc, Janet *argv) {

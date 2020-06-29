@@ -1,7 +1,9 @@
-#include <raylib.h>
 #define RAYGUI_IMPLEMENTATION
 #define RAYGUI_SUPPORT_ICONS
+#define GUI_TEXTBOX_EXTENDED_IMPLEMENTATION
+#include <raylib.h>
 #include <raygui.h>
+#include <gui_textbox_extended.h>
 #include <janet.h>
 
 #include "types.h"

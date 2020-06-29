@@ -760,8 +760,8 @@ static Janet cfun_GuiListView(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 4);
     Rectangle bounds = jaylib_getrect(argv, 0);
     const char *text = jaylib_getcstring(argv, 1);
-    int scrollIndex = 0;
-    int active = janet_getinteger(argv, 2);
+    int scrollIndex = janet_getinteger(argv, 2);
+    int active = janet_getinteger(argv, 3);
     int result = GuiListView(bounds, text, &scrollIndex, active);            // List View control, returns selected list item index
     return jaylib_wrap_gui_listviewresult(result, scrollIndex);
 }
@@ -859,7 +859,142 @@ static Janet cfun_GuiIconText(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 2);
     int iconId = jaylib_getgui_icon_name(argv, 0);
     const char *text = jaylib_getcstring(argv, 1);
-    return janet_wrap_string(GuiIconText(iconId, text)); // Get text with icon id prepended (if supported)
+    return janet_cstringv(GuiIconText(iconId, text)); // Get text with icon id prepended (if supported)
+}
+
+// gui_textbox_extended.h:
+
+static Janet cfun_GuiTextBoxSetActive(int32_t argc, Janet *argv) {
+  janet_fixarity(argc, 1);
+  Rectangle bounds = jaylib_getrect(argv, 0);
+  GuiTextBoxSetActive(bounds);                   // Sets the active textbox
+  return janet_wrap_nil();
+}
+
+static Janet cfun_GuiTextBoxGetActive(int32_t argc, Janet *argv) {
+  janet_fixarity(argc, 0);
+  Rectangle result = GuiTextBoxGetActive();                          // Get bounds of active textbox
+  return jaylib_wrap_rectangle(result);
+}
+
+// 
+static Janet cfun_GuiTextBoxSetCursor(int32_t argc, Janet *argv) {
+  janet_fixarity(argc, 1);
+  int cursor = janet_getinteger(argv, 0);
+  GuiTextBoxSetCursor(cursor);                         // Set cursor position of active textbox
+  return janet_wrap_nil();
+}
+
+static Janet cfun_GuiTextBoxGetCursor(int32_t argc, Janet *argv) {
+  janet_fixarity(argc, 0);
+  int result = GuiTextBoxGetCursor();                                // Get cursor position of active textbox
+  return janet_wrap_integer(result);
+}
+
+// 
+static Janet cfun_GuiTextBoxSetSelection(int32_t argc, Janet *argv) {
+  janet_fixarity(argc, 2);
+  int start = janet_getinteger(argv, 0);
+  int length = janet_getinteger(argv, 1);
+  GuiTextBoxSetSelection(start, length);           // Set selection of active textbox
+  return janet_wrap_nil();
+}
+
+static Janet cfun_GuiTextBoxGetSelection(int32_t argc, Janet *argv) {
+  janet_fixarity(argc, 0);
+  Vector2 result = GuiTextBoxGetSelection();                         // Get selection of active textbox (x - selection start  y - selection length)
+  return jaylib_wrap_vec2(result);
+}
+
+// 
+static Janet cfun_GuiTextBoxIsActive(int32_t argc, Janet *argv) {
+  janet_fixarity(argc, 1);
+  Rectangle bounds = jaylib_getrect(argv, 0);
+  bool result = GuiTextBoxIsActive(bounds);                    // Returns true if a textbox control with specified `bounds` is the active textbox
+  return janet_wrap_boolean(result);
+}
+
+static Janet cfun_GuiTextBoxGetState(int32_t argc, Janet *argv) {
+  janet_fixarity(argc, 0);
+  //RAYGUIDEF GuiTextBoxState GuiTextBoxGetState();                     // Get state for the active textbox
+  return janet_wrap_nil();
+}
+
+static Janet cfun_GuiTextBoxSetState(int32_t argc, Janet *argv) {
+  janet_fixarity(argc, 0);
+  // RAYGUIDEF void GuiTextBoxSetState(GuiTextBoxState state);               // Set state for the active textbox (state must be valid else things will break)
+  return janet_wrap_nil();
+}
+
+// 
+static Janet cfun_GuiTextBoxSelectAll(int32_t argc, Janet *argv) {
+  janet_fixarity(argc, 1);
+  const char *text = jaylib_getcstring(argv, 0);
+  GuiTextBoxSelectAll(text);                   // Select all characters in the active textbox (same as pressing `CTRL` + `A`)
+  return janet_wrap_nil();
+}
+
+static Janet cfun_GuiTextBoxCopy(int32_t argc, Janet *argv) {
+  janet_fixarity(argc, 1);
+  const char *text = jaylib_getcstring(argv, 0);
+  GuiTextBoxCopy(text);                        // Copy selected text to clipboard from the active textbox (same as pressing `CTRL` + `C`)
+  return janet_wrap_nil();
+}
+
+static Janet cfun_GuiTextBoxPaste(int32_t argc, Janet *argv) {
+  janet_fixarity(argc, 2);
+  const char *text = jaylib_getcstring(argv, 0);
+  int textSize = janet_getinteger(argv, 1);
+  char *buff = janet_scalloc(sizeof(char), (size_t)(textSize+1));
+  buff = fillBuffer(buff, &textSize, text);
+  void GuiTextBoxPaste(buff, textSize);               // Paste text from clipboard into the textbox (same as pressing `CTRL` + `V`)
+  return janet_wrap_nil();
+}
+
+static Janet cfun_GuiTextBoxCut(int32_t argc, Janet *argv) {
+  janet_fixarity(argc, 1);
+  const char *text = jaylib_getcstring(argv, 0);
+  int buffSize = strlen(text);
+  char *buff = janet_scalloc(sizeof(char), (size_t)(buffSize+1));
+  buff = fillBuffer(buff, &buffSize, text);
+  GuiTextBoxCut(buff);                               // Cut selected text in the active textbox and copy it to clipboard (same as pressing `CTRL` + `X`)
+  return janet_cstringv(buff);
+}
+
+static Janet cfun_GuiTextBoxDelete(int32_t argc, Janet *argv) {
+  janet_fixarity(argc, 3);
+  const char *text = jaylib_getcstring(argv, 0);
+  int length = janet_getinteger(argv, 1);
+  bool before = janet_getboolean(argv, 2);
+
+  char *buff = janet_scalloc(sizeof(char), (size_t)(length+1));
+  buff = fillBuffer(buff, &length, text);
+
+  int result = GuiTextBoxDelete(buff, length, before);    // Deletes a character or selection before from the active textbox (depending on `before`). Returns bytes deleted.
+  return jaylib_wrap_text_input_box_result(result, buff);
+}
+
+static Janet cfun_GuiTextBoxGetByteIndex(int32_t argc, Janet *argv) {
+  janet_fixarity(argc, 4);
+  const char *text = jaylib_getcstring(argv, 0);
+  int start = janet_getinteger(argv, 1);
+  int from = janet_getinteger(argv, 2);
+  int to = janet_getinteger(argv, 3);
+  int result = GuiTextBoxGetByteIndex(text, start, from, to); // Get the byte index for a character starting at position `from` with index `start` until position `to`.
+  return janet_wrap_integer(result);
+}
+
+// 
+static Janet cfun_GuiTextBoxEx(int32_t argc, Janet *argv) {
+  janet_fixarity(argc, 4);
+  Rectangle bounds = jaylib_getrect(argv, 0);
+  const char *text = jaylib_getcstring(argv, 1);
+  int textSize = janet_getinteger(argv, 2);
+  bool editMode = janet_getboolean(argv, 3);
+  char *buff = janet_scalloc(sizeof(char), (size_t)(textSize+1));
+  buff = fillBuffer(buff, &textSize, text);
+  bool result = GuiTextBoxEx(bounds, buff, textSize, editMode);
+  return jaylib_wrap_gui_string(result, buff);
 }
 
 static JanetReg gui_cfuns[] = {
@@ -929,5 +1064,24 @@ static JanetReg gui_cfuns[] = {
     {"gui-load-style-default", cfun_GuiLoadStyleDefault, NULL},
 
     {"gui-icon-text", cfun_GuiIconText, NULL},
+
+// gui_textbox_extended.h:
+    {"gui-text-box-set-active", cfun_GuiTextBoxSetActive, NULL},
+    {"gui-text-box-get-active", cfun_GuiTextBoxGetActive, NULL},
+    {"gui-text-box-set-cursor", cfun_GuiTextBoxSetCursor, NULL},
+    {"gui-text-box-get-cursor", cfun_GuiTextBoxGetCursor, NULL},
+    {"gui-text-box-set-selection", cfun_GuiTextBoxSetSelection, NULL},
+    {"gui-text-box-get-selection", cfun_GuiTextBoxGetSelection, NULL},
+    {"gui-text-box-is-active", cfun_GuiTextBoxIsActive, NULL},
+    {"gui-text-box-get-state", cfun_GuiTextBoxGetState, NULL},
+    {"gui-text-box-set-state", cfun_GuiTextBoxSetState, NULL},
+    {"gui-text-box-selectall", cfun_GuiTextBoxSelectAll, NULL},
+    {"gui-text-box-copy", cfun_GuiTextBoxCopy, NULL},
+    {"gui-text-box-paste", cfun_GuiTextBoxPaste, NULL},
+    {"gui-text-box-cut", cfun_GuiTextBoxCut, NULL},
+    {"gui-text-box-delete", cfun_GuiTextBoxDelete, NULL},
+    {"gui-text-box-get-byte-index", cfun_GuiTextBoxGetByteIndex, NULL},
+    {"gui-text-box-ex", cfun_GuiTextBoxEx, NULL},
+
     {NULL, NULL, NULL}
 };

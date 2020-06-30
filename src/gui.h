@@ -746,8 +746,6 @@ static Janet cfun_GuiGrid(int32_t argc, Janet *argv) {
     return jaylib_wrap_vec2(GuiGrid(bounds, spacing, subdivs));                                // Grid control
 }
 
-
-
 static Janet jaylib_wrap_gui_listviewresult(int active, int scrollindex) {
     JanetKV *g_r = janet_struct_begin(2);
     janet_struct_put(g_r, janet_ckeywordv("active"), janet_wrap_integer(active));
@@ -766,16 +764,31 @@ static Janet cfun_GuiListView(int32_t argc, Janet *argv) {
     return jaylib_wrap_gui_listviewresult(result, scrollIndex);
 }
 
+static Janet jaylib_wrap_gui_listviewresult_ex(int active, int scrollindex, int focus) {
+    JanetKV *g_r = janet_struct_begin(3);
+    janet_struct_put(g_r, janet_ckeywordv("active"), janet_wrap_integer(active));
+    janet_struct_put(g_r, janet_ckeywordv("scrollindex"), janet_wrap_integer(scrollindex));
+    janet_struct_put(g_r, janet_ckeywordv("focus"), janet_wrap_integer(focus));
+    return janet_wrap_struct(janet_struct_end(g_r));
+}
+
 static Janet cfun_GuiListViewEx(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 6);
     Rectangle bounds = jaylib_getrect(argv, 0);
-    const char *text = jaylib_getcstring(argv, 1);
+    
+    //const char **text = jaylib_getcstring(argv, 1);
+    JanetView idx = janet_getindexed(argv, 1);
+    const char **text = janet_scalloc(sizeof(const char**), (size_t)(idx.len));
+    for(unsigned i = 0; i < idx.len; i++) {
+        text[i] = jaylib_getcstring(idx.items, i);
+    }
+
     int count = janet_getinteger(argv, 2);
     int focus = janet_getinteger(argv, 3);
     int scrollIndex = janet_getinteger(argv, 4);
     int active = janet_getinteger(argv, 5);
     int result = GuiListViewEx(bounds, text, count, &focus, &scrollIndex, active);      // List View with extended parameters
-    return jaylib_wrap_gui_listviewresult(result, scrollIndex);
+    return jaylib_wrap_gui_listviewresult_ex(result, scrollIndex, focus);
 }
 
 static Janet cfun_GuiMessageBox(int32_t argc, Janet *argv) {

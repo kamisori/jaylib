@@ -24,7 +24,7 @@
   (make-window)
   (def home (os/cwd))
 
-  (var sprite-texture (load-sprite-texture "./assets/lenna.png"))
+  (var sprite-texture (load-sprite-texture "./lenna.png"))
   (var alpha-value 0)
   (var hue-value 0)
   (var view @[])
@@ -105,42 +105,39 @@
             "Spinner Label"
             ((spinner :result) :value)
             0 100
-            (spinner :editing))
-          {:result r
-          :editing e}
-          result]
+            (spinner :editing))]
       (set (spinner :result) result)
-      (when r (set (spinner :editing) (not e))))
+      (when ((spinner :result) :result)
+        (set (spinner :editing)
+          (not (spinner :editing)))))
 
-    (let [result
-          (gui-value-box
-            [25 175 125 30]
-            "Value Box Label"
-            ((value-box :result) :value)
-            0 100
-            (value-box :editing))
-          {:result r
-          :editing e}
-          result]
-      (set (value-box :result) result)
-      (when r (set (value-box :editing) (not e))))
+    (set (value-box :result)
+      (gui-value-box
+        [25 175 125 30]
+        "Value Box Label"
+        ((value-box :result) :value)
+        0 100
+        (value-box :editing)))
+
+    (when ((value-box :result) :result)
+      (set (value-box :editing)
+        (not (value-box :editing))))
 
     (gui-set-style
       :textbox
       :text-alignment
       :gui-text-align-left)
 
-    (let [result
-          (gui-text-box
-            [25 215 125 30]
-            ((text-box :result) :text)
-            (text-box :length)
-            (text-box :editing))
-          {:result r
-          :editing e}
-          result]
-      (set (text-box :result) result)
-      (when r (set (text-box :editing) (not e))))
+    (set (text-box :result)
+      (gui-text-box
+        [25 215 125 30]
+        ((text-box :result) :text)
+        (text-box :length)
+        (text-box :editing)))
+
+    (when ((text-box :result) :result)
+      (set (text-box :editing)
+        (not (text-box :editing))))
 
     (gui-set-style
       :button
@@ -183,34 +180,32 @@
       :text-alignment
       :gui-text-align-left)
 
-    (let [result
-          (gui-dropdown-box
-            [25 65 125 20]
-            "#01#ONE;#02#TWO;#03#THREE;#04#FOUR"
-            ((dropdown-box-001 :result) :value)
-            (dropdown-box-001 :editing))
-          {:result r
-          :editing e}
-          result]
-    (set (dropdown-box-001 :result) result)
-    (when r (set (dropdown-box-001 :editing) (not e))))
+    (set (dropdown-box-001 :result)
+      (gui-dropdown-box
+        [25 65 125 20]
+        "#01#ONE;#02#TWO;#03#THREE;#04#FOUR"
+        ((dropdown-box-001 :result) :value)
+        (dropdown-box-001 :editing)))
+
+    (when ((dropdown-box-001 :result) :result)
+      (set (dropdown-box-001 :editing)
+        (not (dropdown-box-001 :editing))))
 
     (gui-set-style
       :dropdownbox
       :text-alignment
       :gui-text-align-center)
 
-    (let [result
-          (gui-dropdown-box
-            [25 25 125 20]
-            "ONE;TWO;THREE"
-            ((dropdown-box-000 :result) :value)
-            (dropdown-box-000 :editing))
-          {:result r
-          :editing e}
-          result]
-    (set (dropdown-box-000 :result) result)
-    (when r (set (dropdown-box-000 :editing) (not e))))
+    (set (dropdown-box-000 :result)
+      (gui-dropdown-box
+        [25 25 125 20]
+        "ONE;TWO;THREE"
+        ((dropdown-box-000 :result) :value)
+        (dropdown-box-000 :editing)))
+    
+    (when ((dropdown-box-000 :result) :result)
+      (set (dropdown-box-000 :editing)
+        (not (dropdown-box-000 :editing))))
 
     (let [result
           (gui-list-view
@@ -259,12 +254,11 @@
             [320 25 251 140]
             ((multi-text-box :result) :text)
             (multi-text-box :length)
-            (multi-text-box :editing))
-          {:result r
-          :editing e}
-          result]
+            (multi-text-box :editing))]
       (set (multi-text-box :result) result)
-      (when r (set (multi-text-box :editing) (not e))))
+      (when ((multi-text-box :result) :result)
+        (set (multi-text-box :editing)
+          (not (multi-text-box :editing)))))
 
     # cursor placement is off by one pixel per line
     # with text-size:10
@@ -380,5 +374,3 @@
     (end-drawing))
   (unload-texture sprite-texture)
   (close-window))
-
-(main)

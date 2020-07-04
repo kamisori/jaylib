@@ -255,12 +255,12 @@ static Janet cfun_ImageDither(int32_t argc, Janet *argv) {
     return argv[0];
 }
 
-static Janet cfun_ImageExtractPalette(int32_t argc, Janet *argv) {
+static Janet cfun_GetImagePalette(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 2);
     Image *image = jaylib_getimage(argv, 0);
     int maxPaletteSize = janet_getinteger(argv, 1);
     int extractCount = 0;
-    Color *colors = ImageExtractPalette(*image, maxPaletteSize, &extractCount);
+    Color *colors = GetImagePalette(*image, maxPaletteSize, &extractCount);
     JanetArray *acolors = janet_array(extractCount);
     for (int i = 0; i < extractCount; i++) {
         Color c = colors[i];
@@ -328,7 +328,7 @@ static Janet cfun_ImageDrawText(int32_t argc, Janet *argv) {
     const char *text = janet_getcstring(argv, 2);
     int fontSize = janet_getinteger(argv, 3);
     Color color = jaylib_getcolor(argv, 4);
-    ImageDrawText(dst, position, text, fontSize, color);
+    ImageDrawText(dst, text, position.x, position.y, fontSize, color);
     return argv[0];
 }
 
@@ -341,7 +341,7 @@ static Janet cfun_ImageDrawTextEx(int32_t argc, Janet *argv) {
     float fontSize = (float) janet_getnumber(argv, 4);
     float spacing = (float) janet_getnumber(argv, 5);
     Color color = jaylib_getcolor(argv, 6);
-    ImageDrawTextEx(dst, position, *font, text, fontSize, spacing, color);
+    ImageDrawTextEx(dst, *font, text, position, fontSize, spacing, color);
     return argv[0];
 }
 
@@ -714,7 +714,7 @@ static const JanetReg image_cfuns[] = {
     {"image-resize-canvas", cfun_ImageResizeCanvas, NULL},
     {"image-mipmaps", cfun_ImageMipmaps, NULL},
     {"image-dither", cfun_ImageDither, NULL},
-    {"image-extract-pallete", cfun_ImageExtractPalette, NULL},
+    {"get-image-pallete", cfun_GetImagePalette, NULL},
     {"image-text", cfun_ImageText, NULL},
     {"image-text-ex", cfun_ImageTextEx, NULL},
     {"image-draw", cfun_ImageDraw, NULL},

@@ -179,7 +179,6 @@ static const KeyDef axis_defs[] = {
     {"right-trigger", GAMEPAD_AXIS_RIGHT_TRIGGER},
     {"right-x", GAMEPAD_AXIS_RIGHT_X},
     {"right-y", GAMEPAD_AXIS_RIGHT_Y},
-    {"unknown", GAMEPAD_AXIS_UNKNOWN},
 };
 
 static const KeyDef mouse_defs[] = {

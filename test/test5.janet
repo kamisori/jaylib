@@ -376,3 +376,4 @@
   (close-window))
 
 (main)
+(os/exit)

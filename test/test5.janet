@@ -374,3 +374,5 @@
     (end-drawing))
   (unload-texture sprite-texture)
   (close-window))
+
+(main)

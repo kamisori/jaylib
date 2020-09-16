@@ -21,9 +21,9 @@
 (declare-native
   :name "jaylib"
 
-  :cflags cflags
+  :cflags [;default-cflags ;cflags]
 
-  :defines {"PLATFORM_DESKTOP" true}
+  :defines {"PLATFORM_DESKTOP" true "_POSIX_C_SOURCE" "200809L"}
 
   :source ["src/main.c"
 
@@ -53,7 +53,7 @@
             "raygui/src/raygui.h"
             "raygui/src/ricons.h"]
 
-  :lflags lflags)
+  :lflags [;default-lflags ;lflags])
 
 # `jpm run repl` to run a repl with access to jaylib
 (phony "repl" ["build"]

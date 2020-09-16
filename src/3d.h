@@ -90,6 +90,7 @@ static Janet cfun_DrawSphere(int32_t argc, Janet *argv) {
     Vector3 centerPos = jaylib_getvec3(argv, 0);
     float radius = (float) janet_getnumber(argv, 1);
     Color color = jaylib_getcolor(argv, 2);
+    DrawSphere(centerPos, radius, color);
     return janet_wrap_nil();
 }
 
@@ -477,7 +478,6 @@ static JanetReg threed_cfuns[] = {
     {"draw-cube-wires-v", cfun_DrawCubeWiresV, NULL},
     {"draw-cube-texture", cfun_DrawCubeTexture, NULL},
     {"draw-gizmo", cfun_DrawGizmo, NULL},
-    {"draw-grid", cfun_DrawGizmo, NULL},
     {"draw-sphere", cfun_DrawSphere, NULL},
     {"draw-sphere-ex", cfun_DrawSphereEx, NULL},
     {"draw-sphere-wires", cfun_DrawSphereWires, NULL},
@@ -485,6 +485,7 @@ static JanetReg threed_cfuns[] = {
     {"draw-cylinder-wires", cfun_DrawCylinderWires, NULL},
     {"draw-plane", cfun_DrawPlane, NULL},
     {"draw-ray", cfun_DrawRay, NULL},
+    
     // Model loading/unloading functions
     {"load-model", cfun_LoadModel, NULL},
     {"load-model-from-mesh", cfun_LoadModelFromMesh, NULL},
@@ -542,5 +543,7 @@ static JanetReg threed_cfuns[] = {
     {"toggle-vr-mode", cfun_ToggleVrMode, NULL},
     {"begin-vr-drawing", cfun_BeginVrDrawing, NULL},
     {"end-vr-drawing", cfun_EndVrDrawing, NULL},
+    {"draw-grid", cfun_DrawGrid, NULL},
+
     {NULL, NULL, NULL}
 };

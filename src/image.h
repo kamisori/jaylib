@@ -13,19 +13,6 @@ static Janet cfun_ImageDimensions(int32_t argc, Janet *argv) {
     return janet_wrap_tuple(janet_tuple_n(dim, 2));
 }
 
-static Janet cfun_LoadImageEx(int32_t argc, Janet *argv) {
-    janet_fixarity(argc, 3);
-    JanetView pixels = janet_getindexed(argv, 0);
-    Color *raw_pixels = janet_smalloc(sizeof(Color) * pixels.len);
-    for (int32_t i = 0; i < pixels.len; i++) {
-        raw_pixels[i] = jaylib_getcolor(pixels.items, i);
-    }
-    int width = janet_getinteger(argv, 1);
-    int height = janet_getinteger(argv, 2);
-    LoadImageEx(raw_pixels, width, height);
-    return janet_wrap_nil();
-}
-
 static Janet cfun_LoadImageRaw(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 5);
     const char *fileName = janet_getcstring(argv, 0);
@@ -661,7 +648,7 @@ static Janet cfun_ColorToHSV(int32_t argc, Janet *argv) {
 static Janet cfun_ColorFromHSV(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 1);
     Vector3 hsv = jaylib_getvec3(argv, 0);
-    return jaylib_wrap_color(ColorFromHSV(hsv));
+    return jaylib_wrap_color(ColorFromHSV(hsv.x, hsv.y, hsv.z));
 }
 
 static Janet cfun_GetColor(int32_t argc, Janet *argv) {
@@ -693,7 +680,6 @@ RLAPI void DrawTextureNPatch(Texture2D texture, NPatchInfo nPatchInfo, Rectangle
 
 static const JanetReg image_cfuns[] = {
     {"load-image-1", cfun_LoadImage, NULL}, // load-image is janet core function, don't want to overwrite if we use (use jaylib)
-    {"load-image-ex", cfun_LoadImageEx, NULL},
     {"load-image-raw", cfun_LoadImageRaw, NULL},
     {"export-image", cfun_ExportImage, NULL},
     {"export-image-as-code", cfun_ExportImageAsCode, NULL},

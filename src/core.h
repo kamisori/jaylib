@@ -581,6 +581,28 @@ static Janet cfun_GetMouseWheelMove(int32_t argc, Janet *argv) {
     return janet_wrap_integer(GetMouseWheelMove());
 }
 
+static Janet cfun_GetMouseRay(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 2);
+    Vector2 mousePosition = jaylib_getvec2(argv, 0);
+    Camera3D *camera = jaylib_getcamera3d(argv, 1);
+    return jaylib_wrap_ray(GetMouseRay(mousePosition, *camera));
+}
+
+static Janet cfun_GetWorldToScreen(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 2);
+    Vector3 position = jaylib_getvec3(argv, 0);
+    Camera3D *camera = jaylib_getcamera3d(argv, 1);
+    return jaylib_wrap_vec2(GetWorldToScreen(position, *camera));
+}
+
+static Janet cfun_GetCameraMatrix(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    Camera3D *camera = jaylib_getcamera3d(argv, 1);
+    Matrix *matrix = janet_abstract(&AT_Matrix, sizeof(Matrix));
+    *matrix = GetCameraMatrix(*camera);
+    return janet_wrap_abstract(matrix);
+}
+
 static Janet cfun_GetTouchX(int32_t argc, Janet *argv) {
     (void) argv;
     janet_fixarity(argc, 0);
@@ -649,7 +671,7 @@ static Janet cfun_SetWindowIcon(int32_t argc, Janet *argv) {
 }
 
 static Janet cfun_Camera2D(int32_t argc, Janet *argv) {
-    if (argc & 1 != 0) {
+    if ((argc & 1) != 0) {
         janet_panicf("expected even number of arguments, got %d", argc);
     }
     Camera2D *camera = janet_abstract(&AT_Camera2D, sizeof(Camera2D));
@@ -672,7 +694,7 @@ static Janet cfun_Camera2D(int32_t argc, Janet *argv) {
 }
 
 static Janet cfun_Camera3D(int32_t argc, Janet *argv) {
-    if (argc & 1 != 0) {
+    if ((argc & 1) != 0) {
         janet_panicf("expected even number of arguments, got %d", argc);
     }
     Camera3D *camera = janet_abstract(&AT_Camera3D, sizeof(Camera3D));
@@ -793,6 +815,60 @@ static Janet cfun_SetCameraMoveControls(int32_t argc, Janet *argv) {
     return janet_wrap_nil();
 }
 
+static Janet cfun_GetCamera3dPosition(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    Camera3D *camera = jaylib_getcamera3d(argv, 0);
+    return janet_wrap_vec3(camera->position);
+}
+
+static Janet cfun_SetCamera3dPosition(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 2);
+    Camera3D *camera = jaylib_getcamera3d(argv, 0);
+    Vector3 v3 = jaylib_getvec3(argv, 1);
+    camera->position = v3;
+    return janet_wrap_nil();
+}
+
+static Janet cfun_GetCameraAngle(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    return janet_wrap_vec2(CAMERA.angle);
+}
+
+static Janet cfun_SetCameraAngle(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 2);
+    Vector2 v2 = jaylib_getvec3(argv, 1);
+    CAMERA.angle = v2;
+    return janet_wrap_nil();
+}
+
+static Janet cfun_GetCamera3dTarget(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    Camera3D *camera = jaylib_getcamera3d(argv, 0);
+    return janet_wrap_vec3(camera->target);
+}
+
+static Janet cfun_SetCamera3dTarget(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 2);
+    Camera3D *camera = jaylib_getcamera3d(argv, 0);
+    Vector3 v3 = jaylib_getvec3(argv, 1);
+    camera->target = v3;
+    return janet_wrap_nil();
+}
+
+static Janet cfun_GetCamera3dUp(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    Camera3D *camera = jaylib_getcamera3d(argv, 0);
+    return janet_wrap_vec3(camera->up);
+}
+
+static Janet cfun_SetCamera3dUp(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 2);
+    Camera3D *camera = jaylib_getcamera3d(argv, 0);
+    Vector3 v3 = jaylib_getvec3(argv, 1);
+    camera->up = v3;
+    return janet_wrap_nil();
+}
+
 static JanetReg core_cfuns[] = {
     {"init-window", cfun_InitWindow, NULL},
     {"window-should-close", cfun_WindowShouldClose, NULL},
@@ -867,6 +943,9 @@ static JanetReg core_cfuns[] = {
     {"set-mouse-offset", cfun_SetMouseOffset, NULL},
     {"set-mouse-scale", cfun_SetMouseScale, NULL},
     {"get-mouse-wheel-move", cfun_GetMouseWheelMove, NULL},
+    {"get-mouse-ray", cfun_GetMouseRay, NULL},
+    {"get-world->screen", cfun_GetWorldToScreen, NULL},
+    {"get-camera-matrix", cfun_GetCameraMatrix, NULL},
     {"get-touch-x", cfun_GetTouchX, NULL},
     {"get-touch-y", cfun_GetTouchY, NULL},
     {"get-touch-position", cfun_GetTouchPosition, NULL},
@@ -888,5 +967,13 @@ static JanetReg core_cfuns[] = {
     {"set-camera-alt-control", cfun_SetCameraAltControl, NULL},
     {"set-camera-smooth-zoom-control", cfun_SetCameraSmoothZoomControl, NULL},
     {"set-camera-move-controls", cfun_SetCameraMoveControls, NULL},
+    {"get-camera-position", cfun_GetCamera3dPosition, NULL}
+    {"set-camera-position", cfun_SetCamera3dPosition, NULL}
+    {"get-camera-angle", cfun_GetCameraAngle, NULL}
+    {"set-camera-angle", cfun_SetCameraAngle, NULL}
+    {"get-camera-target", cfun_GetCamera3dTarget, NULL}
+    {"set-camera-target", cfun_SetCamera3dTarget, NULL}
+    {"get-camera-up", cfun_GetCamera3dUp, NULL}
+    {"set-camera-up", cfun_SetCamera3dUp, NULL}
     {NULL, NULL, NULL}
 };

@@ -179,7 +179,6 @@ static const KeyDef axis_defs[] = {
     {"right-trigger", GAMEPAD_AXIS_RIGHT_TRIGGER},
     {"right-x", GAMEPAD_AXIS_RIGHT_X},
     {"right-y", GAMEPAD_AXIS_RIGHT_Y},
-    {"unknown", GAMEPAD_AXIS_UNKNOWN},
 };
 
 static const KeyDef mouse_defs[] = {
@@ -305,6 +304,26 @@ static Color jaylib_getcolor(const Janet *argv, int32_t n) {
     }
 }
 
+static const KeyDef material_map_defs[] = {
+    {"map-albedo", MAP_ALBEDO},
+    {"map-brdf", MAP_BRDF},
+    {"map-cubemap", MAP_CUBEMAP},
+    {"map-diffuse", MAP_ALBEDO},
+    {"map-emission", MAP_EMISSION},
+    {"map-height", MAP_HEIGHT},
+    {"map-irradiance", MAP_IRRADIANCE},
+    {"map-metalness", MAP_METALNESS},
+    {"map-normal", MAP_NORMAL},
+    {"map-occlusion", MAP_OCCLUSION},
+    {"map-prefilter", MAP_PREFILTER},
+    {"map-roughness", MAP_ROUGHNESS},
+    {"map-specular", MAP_METALNESS},
+};
+
+static int jaylib_getmaptype(const Janet *argv, int32_t n) {
+    return jaylib_castdef(argv, n, material_map_defs, sizeof(material_map_defs) / sizeof(KeyDef));
+}
+
 static float idx_getfloat(JanetView idx, int index) {
     if (index >= idx.len) {
         janet_panicf("index %d outside of range [0, %d)", idx.len);
@@ -380,6 +399,9 @@ static int jaylib_getpixelformat(const Janet *argv, int32_t n) {
     return jaylib_castdef(argv, n, pixel_format_defs, sizeof(pixel_format_defs) / sizeof(KeyDef));
 }
 
+
+
+
 static Janet jaylib_wrap_vec2(Vector2 x) {
     Janet *tup = janet_tuple_begin(2);
     tup[0] = janet_wrap_integer(x.x);
@@ -387,32 +409,63 @@ static Janet jaylib_wrap_vec2(Vector2 x) {
     return janet_wrap_tuple(janet_tuple_end(tup));
 }
 
+static Janet jaylib_wrap_vec3f(Vector3 x) {
+    Janet *tup = janet_tuple_begin(3);
+    tup[0] = janet_wrap_number(x.x);
+    tup[1] = janet_wrap_number(x.y);
+    tup[2] = janet_wrap_number(x.z);
+    return janet_wrap_tuple(janet_tuple_end(tup));
+}
+
+static Janet jaylib_wrap_vec4f(Vector4 x) {
+    Janet *tup = janet_tuple_begin(4);
+    tup[0] = janet_wrap_number(x.x);
+    tup[1] = janet_wrap_number(x.y);
+    tup[2] = janet_wrap_number(x.z);
+    tup[3] = janet_wrap_number(x.w);
+    return janet_wrap_tuple(janet_tuple_end(tup));
+}
+
+static Janet jaylib_wrap_ray(Ray r) {
+    Janet *tup = janet_tuple_begin(2);
+    tup[0] = jaylib_wrap_vec3f(r.position);
+    tup[1] = jaylib_wrap_vec3f(r.direction);
+    return janet_wrap_tuple(janet_tuple_end(tup));
+}
+
+static Janet jaylib_wrap_rectangle(Rectangle r) {
+    Janet *tup = janet_tuple_begin(4);
+    tup[0] = janet_wrap_number(r.x);
+    tup[1] = janet_wrap_number(r.y);
+    tup[2] = janet_wrap_number(r.width);
+    tup[3] = janet_wrap_number(r.height);
+    return janet_wrap_tuple(janet_tuple_end(tup));
+}
+
+static Janet jaylib_wrap_color(Color c) {
+    Janet *t = janet_tuple_begin(4);
+    t[0] = janet_wrap_integer(c.r);
+    t[1] = janet_wrap_integer(c.g);
+    t[2] = janet_wrap_integer(c.b);
+    t[3] = janet_wrap_integer(c.a);
+    return janet_wrap_tuple(janet_tuple_end(t));
+}
+
+// see https://github.com/andrewchambers/janet-big/blob/9c658502c88f1ec3ebb80e2486068da41a346b52/big.c#L76
 static const JanetAbstractType AT_TextureCubemap = {
     "jaylib/texture-cubemap",
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL
+    JANET_ATEND_NAME
 };
 
-/*
+
 static TextureCubemap *jaylib_gettexturecubemap(const Janet *argv, int32_t n) {
     return ((TextureCubemap *)janet_getabstract(argv, n, &AT_TextureCubemap));
 }
-*/
+
 
 static const JanetAbstractType AT_Texture2D = {
     "jaylib/texture2d",
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL
+    JANET_ATEND_NAME
 };
 
 static Texture2D *jaylib_gettexture2d(const Janet *argv, int32_t n) {
@@ -421,13 +474,7 @@ static Texture2D *jaylib_gettexture2d(const Janet *argv, int32_t n) {
 
 static const JanetAbstractType AT_Image = {
     "jaylib/image",
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL
+    JANET_ATEND_NAME
 };
 
 static Image *jaylib_getimage(const Janet *argv, int32_t n) {
@@ -436,13 +483,7 @@ static Image *jaylib_getimage(const Janet *argv, int32_t n) {
 
 static const JanetAbstractType AT_Wave = {
     "jaylib/wave",
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL
+    JANET_ATEND_NAME
 };
 
 static Wave *jaylib_getwave(const Janet *argv, int32_t n) {
@@ -451,13 +492,7 @@ static Wave *jaylib_getwave(const Janet *argv, int32_t n) {
 
 static const JanetAbstractType AT_Sound = {
     "jaylib/sound",
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL
+    JANET_ATEND_NAME
 };
 
 static Sound *jaylib_getsound(const Janet *argv, int32_t n) {
@@ -466,13 +501,7 @@ static Sound *jaylib_getsound(const Janet *argv, int32_t n) {
 
 static const JanetAbstractType AT_Music = {
     "jaylib/music",
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL
+    JANET_ATEND_NAME
 };
 
 static Music *jaylib_getmusic(const Janet *argv, int32_t n) {
@@ -481,13 +510,7 @@ static Music *jaylib_getmusic(const Janet *argv, int32_t n) {
 
 static const JanetAbstractType AT_AudioStream = {
     "jaylib/audio-stream",
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL
+    JANET_ATEND_NAME
 };
 
 static AudioStream *jaylib_getaudiostream(const Janet *argv, int32_t n) {
@@ -496,6 +519,15 @@ static AudioStream *jaylib_getaudiostream(const Janet *argv, int32_t n) {
 
 static const JanetAbstractType AT_Font = {
     "jaylib/font",
+    JANET_ATEND_NAME
+};
+
+static Font *jaylib_getfont(const Janet *argv, int32_t n) {
+    return ((Font *)janet_getabstract(argv, n, &AT_Font));
+}
+
+static const JanetAbstractType AT_Material = {
+    "jaylib/material",
     NULL,
     NULL,
     NULL,
@@ -505,12 +537,12 @@ static const JanetAbstractType AT_Font = {
     NULL
 };
 
-static Font *jaylib_getfont(const Janet *argv, int32_t n) {
-    return ((Font *)janet_getabstract(argv, n, &AT_Font));
+static Material *jaylib_getmaterial(const Janet *argv, int32_t n) {
+    return ((Material *)janet_getabstract(argv, n, &AT_Material));
 }
 
-static const JanetAbstractType AT_RenderTexture = {
-    "jaylib/render-texture",
+static const JanetAbstractType AT_Model = {
+    "jaylib/model",
     NULL,
     NULL,
     NULL,
@@ -518,6 +550,30 @@ static const JanetAbstractType AT_RenderTexture = {
     NULL,
     NULL,
     NULL
+};
+
+static Model *jaylib_getmodel(const Janet *argv, int32_t n) {
+    return ((Model *)janet_getabstract(argv, n, &AT_Model));
+}
+
+static const JanetAbstractType AT_Mesh = {
+    "jaylib/mesh",
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+};
+
+static Mesh *jaylib_getmesh(const Janet *argv, int32_t n) {
+    return ((Mesh *)janet_getabstract(argv, n, &AT_Mesh));
+}
+
+static const JanetAbstractType AT_RenderTexture = {
+    "jaylib/render-texture",
+    JANET_ATEND_NAME
 };
 
 static RenderTexture *jaylib_getrendertexture(const Janet *argv, int32_t n) {
@@ -526,13 +582,7 @@ static RenderTexture *jaylib_getrendertexture(const Janet *argv, int32_t n) {
 
 static const JanetAbstractType AT_Camera2D = {
     "jaylib/camera-2d",
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL
+    JANET_ATEND_NAME
 };
 
 static Camera2D *jaylib_getcamera2d(const Janet *argv, int32_t n) {
@@ -541,6 +591,15 @@ static Camera2D *jaylib_getcamera2d(const Janet *argv, int32_t n) {
 
 static const JanetAbstractType AT_Camera3D = {
     "jaylib/camera-3d",
+    JANET_ATEND_NAME
+};
+
+static Camera3D *jaylib_getcamera3d(const Janet *argv, int32_t n) {
+    return ((Camera3D *)janet_getabstract(argv, n, &AT_Camera3D));
+}
+
+static const JanetAbstractType AT_Matrix = {
+    "jaylib/matrix",
     NULL,
     NULL,
     NULL,
@@ -550,6 +609,36 @@ static const JanetAbstractType AT_Camera3D = {
     NULL
 };
 
-static Camera3D *jaylib_getcamera3d(const Janet *argv, int32_t n) {
-    return ((Camera3D *)janet_getabstract(argv, n, &AT_Camera3D));
+static Matrix *jaylib_getmatrix(const Janet *argv, int32_t n) {
+    return ((Matrix *)janet_getabstract(argv, n, &AT_Matrix));
+}
+
+static const JanetAbstractType AT_VrDeviceInfo = {
+    "jaylib/vr-device-info",
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+};
+
+static VrDeviceInfo *jaylib_getvrdeviceinfo(const Janet *argv, int32_t n) {
+    return ((VrDeviceInfo *)janet_getabstract(argv, n, &AT_VrDeviceInfo));
+}
+
+static const JanetAbstractType AT_Shader = {
+    "jaylib/shader",
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+};
+
+static Shader *jaylib_getshader(const Janet *argv, int32_t n) {
+    return ((Shader *)janet_getabstract(argv, n, &AT_Shader));
 }

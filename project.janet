@@ -8,7 +8,7 @@
   (case o
     :macos '["-Iraylib/src" "-ObjC"]
     #default
-    '["-Iraylib/src"]))
+    '["-Iraylib/src" "-Iraylib/src/external/glfw/include" "-Iraygui/src"]))
 
 (def lflags
   (case o
@@ -21,9 +21,9 @@
 (declare-native
   :name "jaylib"
 
-  :cflags cflags
+  :cflags [;default-cflags ;cflags]
 
-  :defines {"PLATFORM_DESKTOP" true}
+  :defines {"PLATFORM_DESKTOP" true "_POSIX_C_SOURCE" "200809L"}
 
   :source ["src/main.c"
 
@@ -37,16 +37,23 @@
            "raylib/src/textures.c"
            "raylib/src/utils.c"]
 
-  :headers ["src/core.h"
+  :headers [
+            # raylib headers
+            "src/core.h"
             "src/types.h"
             "src/audio.h"
             "src/gestures.h"
             "src/text.h"
             "src/image.h"
             "src/shapes.h"
-            "src/3d.h"]
+            "src/3d.h"
+           
+            # raygui headers
+            "raygui/src/gui_textbox_extended.h"
+            "raygui/src/raygui.h"
+            "raygui/src/ricons.h"]
 
-  :lflags lflags)
+  :lflags [;default-lflags ;lflags])
 
 # `jpm run repl` to run a repl with access to jaylib
 (phony "repl" ["build"]

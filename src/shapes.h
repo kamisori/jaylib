@@ -320,7 +320,66 @@ static Janet cfun_DrawPoly(int32_t argc, Janet *argv) {
     return janet_wrap_nil();
 }
 
+static Janet cfun_SetShapesTexture(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 2);
+    Texture2D texture = *jaylib_gettexture2d(argv, 0);
+    Rectangle rec = jaylib_getrect(argv, 1);
+    SetShapesTexture(texture, rec);
+    return janet_wrap_nil();
+}
+
+static Janet cfun_CheckCollisionRecs(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 2);
+    Rectangle rec1 = jaylib_getrect(argv, 0);
+    Rectangle rec2 = jaylib_getrect(argv, 1);
+    return janet_wrap_boolean(CheckCollisionRecs(rec1, rec2));
+}
+static Janet cfun_CheckCollisionCircles(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 4);
+    Vector2 center1 = jaylib_getvec2(argv, 0);
+    float radius1 = (float) janet_getnumber(argv, 1);
+    Vector2 center2 = jaylib_getvec2(argv, 2);
+    float radius2 = (float) janet_getnumber(argv, 3);
+    return janet_wrap_boolean(CheckCollisionCircles(center1, radius1, center2, radius2));
+}
+static Janet cfun_CheckCollisionCircleRec(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 3);
+    Vector2 center = jaylib_getvec2(argv, 0);
+    float radius = (float) janet_getnumber(argv, 1);
+    Rectangle rec = jaylib_getrect(argv, 2);
+    return janet_wrap_boolean(CheckCollisionCircleRec(center, radius, rec));
+}
+static Janet cfun_GetCollisionRec(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 2);
+    Rectangle rec1 = jaylib_getrect(argv, 0);
+    Rectangle rec2 = jaylib_getrect(argv, 1);
+    Rectangle result = GetCollisionRec(rec1, rec2);
+    return jaylib_wrap_rectangle(result);
+}
+static Janet cfun_CheckCollisionPointRec(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 2);
+    Vector2 point = jaylib_getvec2(argv, 0);
+    Rectangle rec = jaylib_getrect(argv, 1);
+    return janet_wrap_boolean(CheckCollisionPointRec(point, rec));
+}
+static Janet cfun_CheckCollisionPointCircle(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 3);
+    Vector2 point = jaylib_getvec2(argv, 0);
+    Vector2 center = jaylib_getvec2(argv, 1);
+    float radius = (float) janet_getnumber(argv, 2);
+    return janet_wrap_boolean(CheckCollisionPointCircle(point, center, radius));
+}
+static Janet cfun_CheckCollisionPointTriangle(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 4);
+    Vector2 point = jaylib_getvec2(argv, 0);
+    Vector2 p1 = jaylib_getvec2(argv, 1);
+    Vector2 p2 = jaylib_getvec2(argv, 2);
+    Vector2 p3 = jaylib_getvec2(argv, 3);
+    return janet_wrap_boolean(CheckCollisionPointTriangle(point, p1, p2, p3));
+}
+
 static JanetReg shapes_cfuns[] = {
+    // Basic shapes drawing functions
     {"draw-pixel", cfun_DrawPixel, NULL},
     {"draw-pixel-v", cfun_DrawPixelV, NULL},
     {"draw-line", cfun_DrawLine, NULL},
@@ -351,5 +410,14 @@ static JanetReg shapes_cfuns[] = {
     {"draw-triangle-lines", cfun_DrawTriangleLines, NULL},
     {"draw-triangle-fan", cfun_DrawTriangleFan, NULL},
     {"draw-poly", cfun_DrawPoly, NULL},
+    {"set-shapes-texture", cfun_SetShapesTexture, NULL},
+    // Basic shapes collision detection functions
+    {"check-collision-recs", cfun_CheckCollisionRecs, NULL},
+    {"check-collision-circles", cfun_CheckCollisionCircles, NULL},
+    {"check-collision-circle-rec", cfun_CheckCollisionCircleRec, NULL},
+    {"get-collision-rec", cfun_GetCollisionRec, NULL},
+    {"check-collision-point-rec", cfun_CheckCollisionPointRec, NULL},
+    {"check-collision-point-circle", cfun_CheckCollisionPointCircle, NULL},
+    {"check-collision-point-triangle", cfun_CheckCollisionPointTriangle, NULL},
     {NULL, NULL, NULL}
 };

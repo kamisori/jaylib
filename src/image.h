@@ -6,17 +6,23 @@ static Janet cfun_LoadImage(int32_t argc, Janet *argv) {
     return janet_wrap_abstract(image);
 }
 
-static Janet cfun_LoadImageEx(int32_t argc, Janet *argv) {
-    janet_fixarity(argc, 3);
-    JanetView pixels = janet_getindexed(argv, 0);
-    Color *raw_pixels = janet_smalloc(sizeof(Color) * pixels.len);
-    for (int32_t i = 0; i < pixels.len; i++) {
-        raw_pixels[i] = jaylib_getcolor(pixels.items, i);
-    }
+static Janet cfun_ImageDimensions(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    Image image = *jaylib_getimage(argv, 0);
+    Janet dim[2] = { janet_wrap_integer(image.width), janet_wrap_integer(image.height) };
+    return janet_wrap_tuple(janet_tuple_n(dim, 2));
+}
+
+static Janet cfun_LoadImageRaw(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 5);
+    const char *fileName = janet_getcstring(argv, 0);
     int width = janet_getinteger(argv, 1);
     int height = janet_getinteger(argv, 2);
-    LoadImageEx(raw_pixels, width, height);
-    return janet_wrap_nil();
+    int format = jaylib_getpixelformat(argv, 3);
+    int headerSize = janet_getinteger(argv, 4);
+    Image *image = janet_abstract(&AT_Image, sizeof(Image));
+    *image = LoadImageRaw(fileName, width, height, format, headerSize);
+    return janet_wrap_abstract(image);
 }
 
 static Janet cfun_ExportImage(int32_t argc, Janet *argv) {
@@ -243,21 +249,16 @@ static Janet cfun_ImageDither(int32_t argc, Janet *argv) {
     return argv[0];
 }
 
-static Janet cfun_ImageExtractPalette(int32_t argc, Janet *argv) {
+static Janet cfun_GetImagePalette(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 2);
     Image *image = jaylib_getimage(argv, 0);
     int maxPaletteSize = janet_getinteger(argv, 1);
     int extractCount = 0;
-    Color *colors = ImageExtractPalette(*image, maxPaletteSize, &extractCount);
+    Color *colors = GetImagePalette(*image, maxPaletteSize, &extractCount);
     JanetArray *acolors = janet_array(extractCount);
     for (int i = 0; i < extractCount; i++) {
         Color c = colors[i];
-        Janet *t = janet_tuple_begin(4);
-        t[0] = janet_wrap_integer(c.r);
-        t[1] = janet_wrap_integer(c.g);
-        t[2] = janet_wrap_integer(c.b);
-        t[3] = janet_wrap_integer(c.a);
-        janet_array_push(acolors, janet_wrap_tuple(janet_tuple_end(t)));
+        janet_array_push(acolors, jaylib_wrap_color(c));
     }
     return janet_wrap_array(acolors);
 }
@@ -321,7 +322,7 @@ static Janet cfun_ImageDrawText(int32_t argc, Janet *argv) {
     const char *text = janet_getcstring(argv, 2);
     int fontSize = janet_getinteger(argv, 3);
     Color color = jaylib_getcolor(argv, 4);
-    ImageDrawText(dst, position, text, fontSize, color);
+    ImageDrawText(dst, text, position.x, position.y, fontSize, color);
     return argv[0];
 }
 
@@ -334,7 +335,7 @@ static Janet cfun_ImageDrawTextEx(int32_t argc, Janet *argv) {
     float fontSize = (float) janet_getnumber(argv, 4);
     float spacing = (float) janet_getnumber(argv, 5);
     Color color = jaylib_getcolor(argv, 6);
-    ImageDrawTextEx(dst, position, *font, text, fontSize, spacing, color);
+    ImageDrawTextEx(dst, *font, text, position, fontSize, spacing, color);
     return argv[0];
 }
 
@@ -415,10 +416,15 @@ static Janet cfun_ImageColorReplace(int32_t argc, Janet *argv) {
 
 static Janet cfun_DrawTexture(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 4);
+    printf("lets draw ");
     Texture2D texture = *jaylib_gettexture2d(argv, 0);
+    printf("got texture ");
     int x = janet_getinteger(argv, 1);
+    printf("got x ");
     int y = janet_getinteger(argv, 2);
+    printf("got y ");
     Color color = jaylib_getcolor(argv, 3);
+    printf("got color ");
     DrawTexture(texture, x, y, color);
     return janet_wrap_nil();
 }
@@ -626,6 +632,43 @@ static Janet cfun_GetImageDimensions(int32_t argc, Janet *argv) {
     return jaylib_wrap_vec2(dim);
 }
 
+static Janet cfun_ColorToInt(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    Color color = jaylib_getcolor(argv, 0);
+    return janet_wrap_integer(ColorToInt(color));
+}
+
+static Janet cfun_ColorNormalize(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    Color color = jaylib_getcolor(argv, 0);
+    return jaylib_wrap_vec4f(ColorNormalize(color));
+}
+
+static Janet cfun_ColorToHSV(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    Color color = jaylib_getcolor(argv, 0);
+    return jaylib_wrap_vec3f(ColorToHSV(color));
+}
+
+static Janet cfun_ColorFromHSV(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    Vector3 hsv = jaylib_getvec3(argv, 0);
+    return jaylib_wrap_color(ColorFromHSV(hsv.x, hsv.y, hsv.z));
+}
+
+static Janet cfun_GetColor(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    int hexValue = janet_getinteger(argv, 0);
+    return jaylib_wrap_color(GetColor(hexValue));
+}
+
+static Janet cfun_Fade(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 2);
+    Color color =  jaylib_getcolor(argv, 0);
+    float alpha =  janet_getnumber(argv, 1);
+    return jaylib_wrap_color(Fade(color, alpha));
+}
+
 /*
 // Image/Texture2D data loading/unloading/saving functions
 RLAPI Image LoadImagePro(void *data, int width, int height, int format);                                 // Load image from raw data with parameters
@@ -642,7 +685,7 @@ RLAPI void DrawTextureNPatch(Texture2D texture, NPatchInfo nPatchInfo, Rectangle
 
 static const JanetReg image_cfuns[] = {
     {"load-image-1", cfun_LoadImage, NULL}, // load-image is janet core function, don't want to overwrite if we use (use jaylib)
-    {"load-image-ex", cfun_LoadImageEx, NULL},
+    {"load-image-raw", cfun_LoadImageRaw, NULL},
     {"export-image", cfun_ExportImage, NULL},
     {"export-image-as-code", cfun_ExportImageAsCode, NULL},
     {"load-texture", cfun_LoadTexture, NULL},
@@ -668,8 +711,9 @@ static const JanetReg image_cfuns[] = {
     {"image-resize-nn", cfun_ImageResizeNN, NULL},
     {"image-resize-canvas", cfun_ImageResizeCanvas, NULL},
     {"image-mipmaps", cfun_ImageMipmaps, NULL},
+    {"image-dimensions", cfun_ImageDimensions, NULL},
     {"image-dither", cfun_ImageDither, NULL},
-    {"image-extract-pallete", cfun_ImageExtractPalette, NULL},
+    {"get-image-pallete", cfun_GetImagePalette, NULL},
     {"image-text", cfun_ImageText, NULL},
     {"image-text-ex", cfun_ImageTextEx, NULL},
     {"image-draw", cfun_ImageDraw, NULL},
@@ -704,5 +748,11 @@ static const JanetReg image_cfuns[] = {
     {"gen-texture-mipmaps", cfun_GenTextureMipmaps, NULL},
     {"set-texture-filter", cfun_SetTextureFilter, NULL},
     {"set-texture-wrap", cfun_SetTextureWrap, NULL},
+    {"color->int", cfun_ColorToInt, NULL},
+    {"color-normalize", cfun_ColorNormalize, NULL},
+    {"color->HSV", cfun_ColorToHSV, NULL},
+    {"color<-HSV", cfun_ColorFromHSV, NULL},
+    {"get-color", cfun_GetColor, NULL},
+    {"fade", cfun_Fade, NULL},
     {NULL, NULL, NULL}
 };

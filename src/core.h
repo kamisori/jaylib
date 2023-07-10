@@ -818,7 +818,7 @@ static Janet cfun_SetCameraMoveControls(int32_t argc, Janet *argv) {
 static Janet cfun_GetCamera3dPosition(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 1);
     Camera3D *camera = jaylib_getcamera3d(argv, 0);
-    return janet_wrap_vec3(camera->position);
+    return jaylib_wrap_vec3f(camera->position);
 }
 
 static Janet cfun_SetCamera3dPosition(int32_t argc, Janet *argv) {
@@ -829,22 +829,10 @@ static Janet cfun_SetCamera3dPosition(int32_t argc, Janet *argv) {
     return janet_wrap_nil();
 }
 
-static Janet cfun_GetCameraAngle(int32_t argc, Janet *argv) {
-    janet_fixarity(argc, 1);
-    return janet_wrap_vec2(CAMERA.angle);
-}
-
-static Janet cfun_SetCameraAngle(int32_t argc, Janet *argv) {
-    janet_fixarity(argc, 2);
-    Vector2 v2 = jaylib_getvec3(argv, 1);
-    CAMERA.angle = v2;
-    return janet_wrap_nil();
-}
-
 static Janet cfun_GetCamera3dTarget(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 1);
     Camera3D *camera = jaylib_getcamera3d(argv, 0);
-    return janet_wrap_vec3(camera->target);
+    return jaylib_wrap_vec3f(camera->target);
 }
 
 static Janet cfun_SetCamera3dTarget(int32_t argc, Janet *argv) {
@@ -858,7 +846,7 @@ static Janet cfun_SetCamera3dTarget(int32_t argc, Janet *argv) {
 static Janet cfun_GetCamera3dUp(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 1);
     Camera3D *camera = jaylib_getcamera3d(argv, 0);
-    return janet_wrap_vec3(camera->up);
+    return jaylib_wrap_vec3f(camera->up);
 }
 
 static Janet cfun_SetCamera3dUp(int32_t argc, Janet *argv) {
@@ -967,13 +955,11 @@ static JanetReg core_cfuns[] = {
     {"set-camera-alt-control", cfun_SetCameraAltControl, NULL},
     {"set-camera-smooth-zoom-control", cfun_SetCameraSmoothZoomControl, NULL},
     {"set-camera-move-controls", cfun_SetCameraMoveControls, NULL},
-    {"get-camera-position", cfun_GetCamera3dPosition, NULL}
-    {"set-camera-position", cfun_SetCamera3dPosition, NULL}
-    {"get-camera-angle", cfun_GetCameraAngle, NULL}
-    {"set-camera-angle", cfun_SetCameraAngle, NULL}
-    {"get-camera-target", cfun_GetCamera3dTarget, NULL}
-    {"set-camera-target", cfun_SetCamera3dTarget, NULL}
-    {"get-camera-up", cfun_GetCamera3dUp, NULL}
-    {"set-camera-up", cfun_SetCamera3dUp, NULL}
+    {"get-camera-position", cfun_GetCamera3dPosition, NULL},
+    {"set-camera-position", cfun_SetCamera3dPosition, NULL},
+    {"get-camera-target", cfun_GetCamera3dTarget, NULL},
+    {"set-camera-target", cfun_SetCamera3dTarget, NULL},
+    {"get-camera-up", cfun_GetCamera3dUp, NULL},
+    {"set-camera-up", cfun_SetCamera3dUp, NULL},
     {NULL, NULL, NULL}
 };

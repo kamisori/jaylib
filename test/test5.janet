@@ -1,4 +1,4 @@
-(use jaylib)
+(use ../build/jaylib)
 
 (defn- make-window
   "open window with default values" 

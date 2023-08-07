@@ -4,7 +4,7 @@
   "open window with default values" 
   []
   (set-config-flags :msaa-4x-hint)
-  (init-window 800 600 "Place")
+  (init-window 800 600 "UI Showcase")
   (set-target-fps 60)
   (set-exit-key 0))
 

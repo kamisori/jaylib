@@ -416,15 +416,10 @@ static Janet cfun_ImageColorReplace(int32_t argc, Janet *argv) {
 
 static Janet cfun_DrawTexture(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 4);
-    printf("lets draw ");
     Texture2D texture = *jaylib_gettexture2d(argv, 0);
-    printf("got texture ");
     int x = janet_getinteger(argv, 1);
-    printf("got x ");
     int y = janet_getinteger(argv, 2);
-    printf("got y ");
     Color color = jaylib_getcolor(argv, 3);
-    printf("got color ");
     DrawTexture(texture, x, y, color);
     return janet_wrap_nil();
 }

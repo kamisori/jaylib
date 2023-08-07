@@ -1,4 +1,4 @@
-(use jaylib)
+(use ../build/jaylib)
 
 (set-trace-log-callback nil)
 

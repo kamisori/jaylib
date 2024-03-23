@@ -8,13 +8,13 @@
 
 (def cflags
   (case o
-    :macos '["-Iraylib/src" "-ObjC" "-Iraylib/src/external/glfw/include"]
-    :windows ["-Iraylib/src" "-Iraylib/src/external/glfw/include" ]
+    :macos '["-Iraylib/src" "-ObjC" "-Iraylib/src/external/glfw/include" "-Iraygui/src"]
+    :windows ["-Iraylib/src" "-Iraylib/src/external/glfw/include" "-Iraygui/src"]
     # you might need to edit ./raylib/src/external/glfw/src/x11_init.c:1124
     # to match /usr/X11R6/lib/libX11.so*
-    :openbsd '["-Iraylib/src" "-Iraylib/src/external/glfw/include" "-I/usr/X11R6/include" "-Du_char=unsigned char" "-Dalloca(x)=malloc(x)"]
+    :openbsd '["-Iraylib/src" "-Iraylib/src/external/glfw/include" "-Iraygui/src" "-I/usr/X11R6/include" "-Du_char=unsigned char" "-Dalloca(x)=malloc(x)"]
     #default
-    '["-Iraylib/src" "-Iraylib/src/external/glfw/include"]))
+    '["-Iraylib/src" "-Iraylib/src/external/glfw/include" "-Iraygui/src"]))
 
 (def lflags
   (case o
@@ -52,7 +52,10 @@
             "src/shapes.h"
             "src/3d.h"
             "src/rlgl.h"
-            "src/shader.h"]
+            "src/shader.h"
+           
+            # raygui headers
+            "raygui/src/raygui.h"]
 
   :lflags [;default-lflags ;lflags])
 

@@ -330,6 +330,14 @@ static Janet cfun_DrawPoly(int32_t argc, Janet *argv) {
     return janet_wrap_nil();
 }
 
+static Janet cfun_SetShapesTexture(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 2);
+    Texture2D texture = *jaylib_gettexture2d(argv, 0);
+    Rectangle rec = jaylib_getrect(argv, 1);
+    SetShapesTexture(texture, rec);
+    return janet_wrap_nil();
+}
+
 static Janet cfun_CheckCollisionRecs(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 2);
     Rectangle rec1 = jaylib_getrect(argv, 0);
@@ -626,5 +634,6 @@ static JanetReg shapes_cfuns[] = {
         "(get-collision-rec rec1 rec2)\n\n"
         "Get collision rectangle for two rectangles collision"
     },
+    {"set-shapes-texture", cfun_SetShapesTexture, NULL},
     {NULL, NULL, NULL}
 };

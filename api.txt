@@ -77,10 +77,6 @@
 [x] char **GetDroppedFiles(int *count)
 [x] void ClearDroppedFiles(void)
 
-// Persistent storage management
-[x] void SaveStorageValue(int position, int value)
-[x] int LoadStorageValue(int position)
-
 [x] void OpenURL(const char *url)
 
 //------------------------------------------------------------------------------------
@@ -97,7 +93,6 @@
 
 // Input-related functions: gamepads
 [x] bool IsGamepadAvailable(int gamepad)
-[x] bool IsGamepadName(int gamepad, const char *name)
 [x] const char *GetGamepadName(int gamepad)
 [x] bool IsGamepadButtonPressed(int gamepad, int button)
 [x] bool IsGamepadButtonDown(int gamepad, int button)

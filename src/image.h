@@ -24,6 +24,18 @@ static Janet cfun_ImageDimensions(int32_t argc, Janet *argv) {
     return janet_wrap_tuple(janet_tuple_n(dim, 2));
 }
 
+static Janet cfun_LoadImageRaw(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 5);
+    const char *fileName = janet_getcstring(argv, 0);
+    int width = janet_getinteger(argv, 1);
+    int height = janet_getinteger(argv, 2);
+    int format = jaylib_getpixelformat(argv, 3);
+    int headerSize = janet_getinteger(argv, 4);
+    Image *image = janet_abstract(&AT_Image, sizeof(Image));
+    *image = LoadImageRaw(fileName, width, height, format, headerSize);
+    return janet_wrap_abstract(image);
+}
+
 static Janet cfun_ExportImage(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 2);
     Image image = *jaylib_getimage(argv, 0);
@@ -499,6 +511,18 @@ static Janet cfun_DrawTexturePro(int32_t argc, Janet *argv) {
     return janet_wrap_nil();
 }
 
+static Janet cfun_DrawTextureNPatch(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 5);
+    Texture2D texture = *jaylib_gettexture2d(argv, 0);
+    NPatchInfo nPatchInfo = jaylib_getNPatch(argv, 1);
+    Rectangle dest = jaylib_getrect(argv, 2);
+    Vector2 origin = jaylib_getvec2(argv, 3);
+    float rotation = janet_getnumber(argv, 4);
+    Color color = jaylib_getcolor(argv, 5);
+    DrawTextureNPatch(texture, nPatchInfo, dest, origin, rotation, color);
+    return janet_wrap_nil();
+}
+
 static Janet cfun_GenImageColor(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 3);
     int width = janet_getinteger(argv, 0);
@@ -565,6 +589,18 @@ static Janet cfun_GenImageWhiteNoise(int32_t argc, Janet *argv) {
     float factor = (float) janet_getnumber(argv, 2);
     Image *image = janet_abstract(&AT_Image, sizeof(Image));
     *image = GenImageWhiteNoise(width, height, factor);
+    return janet_wrap_abstract(image);
+}
+
+static Janet cfun_GenImagePerlinNoise(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 5);
+    int width = janet_getinteger(argv, 0);
+    int height = janet_getinteger(argv, 1);
+    int offsetX = janet_getinteger(argv, 2);
+    int offsetY = janet_getinteger(argv, 3);
+    float factor = (float) janet_getnumber(argv, 4);
+    Image *image = janet_abstract(&AT_Image, sizeof(Image));
+    *image = GenImagePerlinNoise(width, height, offsetX, offsetY, factor);
     return janet_wrap_abstract(image);
 }
 
@@ -637,6 +673,43 @@ static Janet cfun_GetImageDimensions(int32_t argc, Janet *argv) {
       src->height
     };
     return jaylib_wrap_vec2(dim);
+}
+
+static Janet cfun_ColorToInt(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    Color color = jaylib_getcolor(argv, 0);
+    return janet_wrap_integer(ColorToInt(color));
+}
+
+static Janet cfun_ColorNormalize(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    Color color = jaylib_getcolor(argv, 0);
+    return jaylib_wrap_vec4(ColorNormalize(color));
+}
+
+static Janet cfun_ColorToHSV(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    Color color = jaylib_getcolor(argv, 0);
+    return jaylib_wrap_vec3(ColorToHSV(color));
+}
+
+static Janet cfun_ColorFromHSV(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    Vector3 hsv = jaylib_getvec3(argv, 0);
+    return jaylib_wrap_color(ColorFromHSV(hsv.x, hsv.y, hsv.z));
+}
+
+static Janet cfun_GetColor(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    int hexValue = janet_getinteger(argv, 0);
+    return jaylib_wrap_color(GetColor(hexValue));
+}
+
+static Janet cfun_Fade(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 2);
+    Color color =  jaylib_getcolor(argv, 0);
+    float alpha =  janet_getnumber(argv, 1);
+    return jaylib_wrap_color(Fade(color, alpha));
 }
 
 /*
@@ -914,5 +987,14 @@ static const JanetReg image_cfuns[] = {
         "(set-texture-wrap texture wrap)\n\n"
         "Set texture wrapping mode"
     },
+    {"load-image-raw", cfun_LoadImageRaw, NULL},
+    {"draw-texture-npatch", cfun_DrawTextureNPatch, NULL},
+    {"gen-image-perlin-noise", cfun_GenImagePerlinNoise, NULL},
+    {"color->int", cfun_ColorToInt, NULL},
+    {"color-normalize", cfun_ColorNormalize, NULL},
+    {"color->HSV", cfun_ColorToHSV, NULL},
+    {"color<-HSV", cfun_ColorFromHSV, NULL},
+    {"get-color", cfun_GetColor, NULL},
+    {"fade", cfun_Fade, NULL},
     {NULL, NULL, NULL}
 };

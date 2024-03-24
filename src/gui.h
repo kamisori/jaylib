@@ -95,12 +95,6 @@ static int jaylib_getgui_control_property(const Janet *argv, int32_t n) {
 
 static const KeyDef gui_icon_name [] = {
     {"icon-1up", ICON_1UP},
-    {"icon-217", ICON_217},
-    {"icon-218", ICON_218},
-    {"icon-219", ICON_219},
-    {"icon-220", ICON_220},
-    {"icon-221", ICON_221},
-    {"icon-222", ICON_222},
     {"icon-223", ICON_223},
     {"icon-224", ICON_224},
     {"icon-225", ICON_225},
@@ -143,8 +137,8 @@ static const KeyDef gui_icon_name [] = {
     {"icon-arrow-left-fill", ICON_ARROW_LEFT_FILL},
     {"icon-arrow-right", ICON_ARROW_RIGHT},
     {"icon-arrow-right-fill", ICON_ARROW_RIGHT_FILL},
-    {"icon-arrow-up", ICON_ARROW_TOP},
-    {"icon-arrow-up-fill", ICON_ARROW_TOP_FILL},
+    {"icon-arrow-up", ICON_ARROW_UP},
+    {"icon-arrow-up-fill", ICON_ARROW_UP_FILL},
     {"icon-audio", ICON_AUDIO},
     {"icon-bin", ICON_BIN},
     {"icon-box", ICON_BOX},
@@ -188,7 +182,7 @@ static const KeyDef gui_icon_name [] = {
     {"icon-crossline", ICON_CROSSLINE},
     {"icon-cube", ICON_CUBE},
     {"icon-cube-face-back", ICON_CUBE_FACE_BACK},
-    {"icon-cube-face-down", ICON_CUBE_FACE_DOWN},
+    {"icon-cube-face-bottom", ICON_CUBE_FACE_BOTTOM},
     {"icon-cube-face-front", ICON_CUBE_FACE_FRONT},
     {"icon-cube-face-left", ICON_CUBE_FACE_LEFT},
     {"icon-cube-face-right", ICON_CUBE_FACE_RIGHT},
@@ -388,8 +382,9 @@ static Janet cfun_GuiUnlock(int32_t argc, Janet *argv) {
 
 static Janet cfun_GuiFade(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 1);
-    float alpha = (float) janet_getnumber(argv, 0);
-    GuiFade(alpha);                                    // Set gui controls alpha (global state), alpha goes from 0.0f to 1.0f
+    Color color = jaylib_getcolor(argv, 0);
+    float alpha = (float) janet_getnumber(argv, 1);
+    GuiFade(color, alpha);                                    // Set gui controls alpha (global state), alpha goes from 0.0f to 1.0f
     return janet_wrap_nil();
 }
 
@@ -461,13 +456,6 @@ static Janet cfun_GuiSetTooltip(int32_t argc, Janet *argv) {
     return janet_wrap_nil();
 }
 
-static Janet cfun_GuiClearTooltip(int32_t argc, Janet *argv) {
-    janet_fixarity(argc, 0);
-    GuiClearTooltip();                                   // Clear any tooltip registered
-    return janet_wrap_nil();
-}
-
-
 // Container/separator controls, useful for controls organization
 static Janet cfun_GuiWindowBox(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 2);
@@ -494,18 +482,21 @@ static Janet cfun_GuiLine(int32_t argc, Janet *argv) {
 }
 
 static Janet cfun_GuiPanel(int32_t argc, Janet *argv) {
-    janet_fixarity(argc, 1);
+    janet_fixarity(argc, 2);
     Rectangle bounds = jaylib_getrect(argv, 0);
-    GuiPanel(bounds);                                                              // Panel control, useful to group controls
+    const char *text = jaylib_getcstring(argv, 1);
+    GuiPanel(bounds, text);                                                              // Panel control, useful to group controls
     return janet_wrap_nil();
 }
 
 static Janet cfun_GuiScrollPanel(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 3);
     Rectangle bounds = jaylib_getrect(argv, 0);
-    Rectangle content = jaylib_getrect(argv, 1);
-    Vector2 scroll = jaylib_getvec2(argv, 2);
-    Rectangle result = GuiScrollPanel(bounds, content, &scroll);               // Scroll Panel control
+    const char *text = jaylib_getcstring(argv, 1);
+    Rectangle content = jaylib_getrect(argv, 2);
+    Vector2 scroll = jaylib_getvec2(argv, 3);
+    Rectangle result;
+    GuiScrollPanel(bounds, text, content, &scroll, &result);               // Scroll Panel control
     return jaylib_wrap_rectangle(result);
 }
 
@@ -535,31 +526,12 @@ static Janet cfun_GuiLabelButton(int32_t argc, Janet *argv) {
     return janet_wrap_boolean(result);
 }
 
-static Janet cfun_GuiImageButton(int32_t argc, Janet *argv) {
-    janet_fixarity(argc, 3);
-    Rectangle bounds = jaylib_getrect(argv, 0);
-    const char *text = jaylib_getcstring(argv, 1);
-    Texture2D texture = *jaylib_gettexture2d(argv, 2);
-    bool result = GuiImageButton(bounds, text, texture);                   // Image button control, returns true when clicked
-    return janet_wrap_boolean(result);
-}
-
-static Janet cfun_GuiImageButtonEx(int32_t argc, Janet *argv) {
-    janet_fixarity(argc, 4);
-    Rectangle bounds = jaylib_getrect(argv, 0);
-    const char *text = jaylib_getcstring(argv, 1);
-    Texture2D texture = *jaylib_gettexture2d(argv, 2);
-    Rectangle texSource = jaylib_getrect(argv, 3);
-    bool result = GuiImageButtonEx(bounds, text, texture, texSource);    // Image button extended control, returns true when clicked
-    return janet_wrap_boolean(result);
-}
-
 static Janet cfun_GuiToggle(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 3);
     Rectangle bounds = jaylib_getrect(argv, 0);
     const char *text = jaylib_getcstring(argv, 1);
     bool active = janet_getboolean(argv, 2);
-    bool result = GuiToggle(bounds, text, active);                              // Toggle Button control, returns true when active
+    bool result = GuiToggle(bounds, text, &active);                              // Toggle Button control, returns true when active
     return janet_wrap_boolean(result);
 }
 
@@ -568,7 +540,7 @@ static Janet cfun_GuiToggleGroup(int32_t argc, Janet *argv) {
     Rectangle bounds = jaylib_getrect(argv, 0);
     const char *text = jaylib_getcstring(argv, 1);
     int active = janet_getinteger(argv, 2);
-    int result = GuiToggleGroup(bounds, text, active);                           // Toggle Group control, returns active toggle index
+    int result = GuiToggleGroup(bounds, text, &active);                           // Toggle Group control, returns active toggle index
     return janet_wrap_integer(result);
 }
 
@@ -577,7 +549,7 @@ static Janet cfun_GuiCheckBox(int32_t argc, Janet *argv) {
     Rectangle bounds = jaylib_getrect(argv, 0);
     const char *text = jaylib_getcstring(argv, 1);
     bool checked = janet_getboolean(argv, 2);
-    bool result = GuiCheckBox(bounds, text, checked);                           // Check Box control, returns true when active
+    bool result = GuiCheckBox(bounds, text, &checked);                           // Check Box control, returns true when active
     return janet_wrap_boolean(result);
 }
 
@@ -586,7 +558,7 @@ static Janet cfun_GuiComboBox(int32_t argc, Janet *argv) {
     Rectangle bounds = jaylib_getrect(argv, 0);
     const char *text = jaylib_getcstring(argv, 1);
     int active = janet_getinteger(argv, 2);
-    int result = GuiComboBox(bounds, text, active);                              // Combo Box control, returns selected item index
+    int result = GuiComboBox(bounds, text, &active);                              // Combo Box control, returns selected item index
     return janet_wrap_integer(result);
 }
 
@@ -665,19 +637,6 @@ static Janet cfun_GuiTextBox(int32_t argc, Janet *argv) {
     return jaylib_wrap_gui_string(result, buff);
 }
 
-static Janet cfun_GuiTextBoxMulti(int32_t argc, Janet *argv) {
-    janet_fixarity(argc, 4);
-    Rectangle bounds = jaylib_getrect(argv, 0);
-    const char *text = jaylib_getcstring(argv, 1);
-    int32_t buffSize = janet_getinteger(argv, 2);
-    char *buff = janet_scalloc(sizeof(char), (size_t)(buffSize+1));
-    buff = fillBuffer(buff, &buffSize, text);
-
-    bool editMode = janet_getboolean(argv, 3);
-    bool result = GuiTextBoxMulti(bounds, buff, buffSize, editMode);              // Text Box control with multiple lines
-    return jaylib_wrap_gui_string(result, buff);
-}
-
 static Janet cfun_GuiSlider(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 6);
     Rectangle bounds = jaylib_getrect(argv, 0);
@@ -686,7 +645,7 @@ static Janet cfun_GuiSlider(int32_t argc, Janet *argv) {
     float value = janet_getnumber(argv, 3);
     float minValue = janet_getnumber(argv, 4);
     float maxValue = janet_getnumber(argv, 5);
-    float result = GuiSlider(bounds, textLeft, textRight, value, minValue, maxValue);       // Slider control, returns selected value
+    float result = GuiSlider(bounds, textLeft, textRight, &value, minValue, maxValue);       // Slider control, returns selected value
     return janet_wrap_number(result);
 }
 
@@ -698,7 +657,7 @@ Rectangle bounds = jaylib_getrect(argv, 0);
     float value = janet_getnumber(argv, 3);
     float minValue = janet_getnumber(argv, 4);
     float maxValue = janet_getnumber(argv, 5);
-    float result = GuiSliderBar(bounds, textLeft, textRight, value, minValue, maxValue);    // Slider Bar control, returns selected value
+    float result = GuiSliderBar(bounds, textLeft, textRight, &value, minValue, maxValue);    // Slider Bar control, returns selected value
     return janet_wrap_number(result);
 }
 
@@ -710,7 +669,7 @@ static Janet cfun_GuiProgressBar(int32_t argc, Janet *argv) {
     float value = janet_getnumber(argv, 3);
     float minValue = janet_getnumber(argv, 4);
     float maxValue = janet_getnumber(argv, 5);
-    float result = GuiProgressBar(bounds, textLeft, textRight, value, minValue, maxValue);  // Progress Bar control, shows current progress value
+    float result = GuiProgressBar(bounds, textLeft, textRight, &value, minValue, maxValue);  // Progress Bar control, shows current progress value
     return janet_wrap_number(result);
 }
 
@@ -743,9 +702,12 @@ static Janet cfun_GuiScrollBar(int32_t argc, Janet *argv) {
 static Janet cfun_GuiGrid(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 3);
     Rectangle bounds = jaylib_getrect(argv, 0);
-    float spacing = janet_getnumber(argv, 1);
-    int subdivs = janet_getinteger(argv, 2);
-    return jaylib_wrap_vec2(GuiGrid(bounds, spacing, subdivs));                                // Grid control
+    const char *text = jaylib_getcstring(argv, 1);
+    float spacing = janet_getnumber(argv, 2);
+    int subdivs = janet_getinteger(argv, 3);
+    Vector2 mouseCell;
+    GuiGrid(bounds, text, spacing, subdivs, &mouseCell);
+    return jaylib_wrap_vec2(mouseCell);                                // Grid control
 }
 
 static Janet jaylib_wrap_gui_listviewresult(int active, int scrollindex) {
@@ -762,7 +724,7 @@ static Janet cfun_GuiListView(int32_t argc, Janet *argv) {
     const char *text = jaylib_getcstring(argv, 1);
     int scrollIndex = janet_getinteger(argv, 2);
     int active = janet_getinteger(argv, 3);
-    int result = GuiListView(bounds, text, &scrollIndex, active);            // List View control, returns selected list item index
+    int result = GuiListView(bounds, text, &scrollIndex, &active);            // List View control, returns selected list item index
     return jaylib_wrap_gui_listviewresult(result, scrollIndex);
 }
 
@@ -789,7 +751,7 @@ static Janet cfun_GuiListViewEx(int32_t argc, Janet *argv) {
     int focus = janet_getinteger(argv, 3);
     int scrollIndex = janet_getinteger(argv, 4);
     int active = janet_getinteger(argv, 5);
-    int result = GuiListViewEx(bounds, text, count, &focus, &scrollIndex, active);      // List View with extended parameters
+    int result = GuiListViewEx(bounds, text, count, &focus, &scrollIndex, &active);      // List View with extended parameters
     return jaylib_wrap_gui_listviewresult_ex(result, scrollIndex, focus);
 }
 
@@ -821,37 +783,46 @@ static Janet cfun_GuiTextInputBox(int32_t argc, Janet *argv) {
     int32_t buffSize = 512;
     char *buff = janet_scalloc(sizeof(char), (size_t)(buffSize));
     buff = fillBuffer(buff, &buffSize, text);
-
-    int result = GuiTextInputBox(bounds, title, message, buttons, buff);   // Text Input Box control, ask for text
+    int textMaxSize = janet_getnumber(argv, 5);
+    bool secretViewActive = janet_getboolean(argv, 6);
+    int result = GuiTextInputBox(bounds, title, message, buttons, buff, textMaxSize, &secretViewActive);   // Text Input Box control, ask for text
     return jaylib_wrap_text_input_box_result(result, buff);
 }
 
 static Janet cfun_GuiColorPicker(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 2);
-    Rectangle bounds = jaylib_getrect(argv, 0);
-    Color color = jaylib_getcolor(argv, 1);
-    return jaylib_wrap_color(GuiColorPicker(bounds, color));                                          // Color Picker control (multiple color controls)
+    Rectangle bounds = jaylib_getrect(argv, 0);    
+    const char *text = jaylib_getcstring(argv, 1);
+    Color color = jaylib_getcolor(argv, 2);
+    GuiColorPicker(bounds, text, &color);
+    return jaylib_wrap_color(color);                                          // Color Picker control (multiple color controls)
 }
 
 static Janet cfun_GuiColorPanel(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 2);
     Rectangle bounds = jaylib_getrect(argv, 0);
-    Color color = jaylib_getcolor(argv, 1);
-    return jaylib_wrap_color(GuiColorPanel(bounds, color));                                           // Color Panel control
+    const char *text = jaylib_getcstring(argv, 1);
+    Color color = jaylib_getcolor(argv, 2);
+    GuiColorPanel(bounds, text, &color);
+    return jaylib_wrap_color(color);                                           // Color Panel control
 }
 
 static Janet cfun_GuiColorBarAlpha(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 2);
     Rectangle bounds = jaylib_getrect(argv, 0);
-    float alpha = janet_getnumber(argv, 1);
-    return janet_wrap_number(GuiColorBarAlpha(bounds, alpha));                                        // Color Bar Alpha control
+    const char *text = jaylib_getcstring(argv, 1);
+    float alpha = janet_getnumber(argv, 2);
+    GuiColorBarAlpha(bounds, text, &alpha);                                        // Color Bar Alpha control
+    return janet_wrap_number(alpha);
 }
 
 static Janet cfun_GuiColorBarHue(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 2);
     Rectangle bounds = jaylib_getrect(argv, 0);
-    float value = janet_getnumber(argv, 1);
-    return janet_wrap_number(GuiColorBarHue(bounds, value));                                          // Color Bar Hue control
+    const char *text = jaylib_getcstring(argv, 1);
+    float value = janet_getnumber(argv, 2);
+    GuiColorBarHue(bounds, text, &value);
+    return janet_wrap_number(value);                                          // Color Bar Hue control
 }
 
 
@@ -877,141 +848,6 @@ static Janet cfun_GuiIconText(int32_t argc, Janet *argv) {
     return janet_cstringv(GuiIconText(iconId, text)); // Get text with icon id prepended (if supported)
 }
 
-// gui_textbox_extended.h:
-
-static Janet cfun_GuiTextBoxSetActive(int32_t argc, Janet *argv) {
-  janet_fixarity(argc, 1);
-  Rectangle bounds = jaylib_getrect(argv, 0);
-  GuiTextBoxSetActive(bounds);                   // Sets the active textbox
-  return janet_wrap_nil();
-}
-
-static Janet cfun_GuiTextBoxGetActive(int32_t argc, Janet *argv) {
-  janet_fixarity(argc, 0);
-  Rectangle result = GuiTextBoxGetActive();                          // Get bounds of active textbox
-  return jaylib_wrap_rectangle(result);
-}
-
-// 
-static Janet cfun_GuiTextBoxSetCursor(int32_t argc, Janet *argv) {
-  janet_fixarity(argc, 1);
-  int cursor = janet_getinteger(argv, 0);
-  GuiTextBoxSetCursor(cursor);                         // Set cursor position of active textbox
-  return janet_wrap_nil();
-}
-
-static Janet cfun_GuiTextBoxGetCursor(int32_t argc, Janet *argv) {
-  janet_fixarity(argc, 0);
-  int result = GuiTextBoxGetCursor();                                // Get cursor position of active textbox
-  return janet_wrap_integer(result);
-}
-
-// 
-static Janet cfun_GuiTextBoxSetSelection(int32_t argc, Janet *argv) {
-  janet_fixarity(argc, 2);
-  int start = janet_getinteger(argv, 0);
-  int length = janet_getinteger(argv, 1);
-  GuiTextBoxSetSelection(start, length);           // Set selection of active textbox
-  return janet_wrap_nil();
-}
-
-static Janet cfun_GuiTextBoxGetSelection(int32_t argc, Janet *argv) {
-  janet_fixarity(argc, 0);
-  Vector2 result = GuiTextBoxGetSelection();                         // Get selection of active textbox (x - selection start  y - selection length)
-  return jaylib_wrap_vec2(result);
-}
-
-// 
-static Janet cfun_GuiTextBoxIsActive(int32_t argc, Janet *argv) {
-  janet_fixarity(argc, 1);
-  Rectangle bounds = jaylib_getrect(argv, 0);
-  bool result = GuiTextBoxIsActive(bounds);                    // Returns true if a textbox control with specified `bounds` is the active textbox
-  return janet_wrap_boolean(result);
-}
-
-static Janet cfun_GuiTextBoxGetState(int32_t argc, Janet *argv) {
-  janet_fixarity(argc, 0);
-  //RAYGUIDEF GuiTextBoxState GuiTextBoxGetState();                     // Get state for the active textbox
-  return janet_wrap_nil();
-}
-
-static Janet cfun_GuiTextBoxSetState(int32_t argc, Janet *argv) {
-  janet_fixarity(argc, 0);
-  // RAYGUIDEF void GuiTextBoxSetState(GuiTextBoxState state);               // Set state for the active textbox (state must be valid else things will break)
-  return janet_wrap_nil();
-}
-
-// 
-static Janet cfun_GuiTextBoxSelectAll(int32_t argc, Janet *argv) {
-  janet_fixarity(argc, 1);
-  const char *text = jaylib_getcstring(argv, 0);
-  GuiTextBoxSelectAll(text);                   // Select all characters in the active textbox (same as pressing `CTRL` + `A`)
-  return janet_wrap_nil();
-}
-
-static Janet cfun_GuiTextBoxCopy(int32_t argc, Janet *argv) {
-  janet_fixarity(argc, 1);
-  const char *text = jaylib_getcstring(argv, 0);
-  GuiTextBoxCopy(text);                        // Copy selected text to clipboard from the active textbox (same as pressing `CTRL` + `C`)
-  return janet_wrap_nil();
-}
-
-static Janet cfun_GuiTextBoxPaste(int32_t argc, Janet *argv) {
-  janet_fixarity(argc, 2);
-  const char *text = jaylib_getcstring(argv, 0);
-  int textSize = janet_getinteger(argv, 1);
-  char *buff = janet_scalloc(sizeof(char), (size_t)(textSize+1));
-  buff = fillBuffer(buff, &textSize, text);
-  void GuiTextBoxPaste(buff, textSize);               // Paste text from clipboard into the textbox (same as pressing `CTRL` + `V`)
-  return janet_wrap_nil();
-}
-
-static Janet cfun_GuiTextBoxCut(int32_t argc, Janet *argv) {
-  janet_fixarity(argc, 1);
-  const char *text = jaylib_getcstring(argv, 0);
-  int buffSize = strlen(text);
-  char *buff = janet_scalloc(sizeof(char), (size_t)(buffSize+1));
-  buff = fillBuffer(buff, &buffSize, text);
-  GuiTextBoxCut(buff);                               // Cut selected text in the active textbox and copy it to clipboard (same as pressing `CTRL` + `X`)
-  return janet_cstringv(buff);
-}
-
-static Janet cfun_GuiTextBoxDelete(int32_t argc, Janet *argv) {
-  janet_fixarity(argc, 3);
-  const char *text = jaylib_getcstring(argv, 0);
-  int length = janet_getinteger(argv, 1);
-  bool before = janet_getboolean(argv, 2);
-
-  char *buff = janet_scalloc(sizeof(char), (size_t)(length+1));
-  buff = fillBuffer(buff, &length, text);
-
-  int result = GuiTextBoxDelete(buff, length, before);    // Deletes a character or selection before from the active textbox (depending on `before`). Returns bytes deleted.
-  return jaylib_wrap_text_input_box_result(result, buff);
-}
-
-static Janet cfun_GuiTextBoxGetByteIndex(int32_t argc, Janet *argv) {
-  janet_fixarity(argc, 4);
-  const char *text = jaylib_getcstring(argv, 0);
-  int start = janet_getinteger(argv, 1);
-  int from = janet_getinteger(argv, 2);
-  int to = janet_getinteger(argv, 3);
-  int result = GuiTextBoxGetByteIndex(text, start, from, to); // Get the byte index for a character starting at position `from` with index `start` until position `to`.
-  return janet_wrap_integer(result);
-}
-
-// 
-static Janet cfun_GuiTextBoxEx(int32_t argc, Janet *argv) {
-  janet_fixarity(argc, 4);
-  Rectangle bounds = jaylib_getrect(argv, 0);
-  const char *text = jaylib_getcstring(argv, 1);
-  int textSize = janet_getinteger(argv, 2);
-  bool editMode = janet_getboolean(argv, 3);
-  char *buff = janet_scalloc(sizeof(char), (size_t)(textSize+1));
-  buff = fillBuffer(buff, &textSize, text);
-  bool result = GuiTextBoxEx(bounds, buff, textSize, editMode);
-  return jaylib_wrap_gui_string(result, buff);
-}
-
 static JanetReg gui_cfuns[] = {
     {"gui-disable", cfun_GuiDisable, NULL},
     {"gui-lock", cfun_GuiLock, NULL},
@@ -1032,7 +868,6 @@ static JanetReg gui_cfuns[] = {
     {"gui-enable-tooltip", cfun_GuiEnableTooltip, NULL},
     {"gui-disable-tooltip", cfun_GuiDisableTooltip, NULL},
     {"gui-set-tooltip", cfun_GuiSetTooltip, NULL},
-    {"gui-clear-tooltip", cfun_GuiClearTooltip, NULL},
 
 // Container/separator controls, useful for controls organization
     {"gui-window-box", cfun_GuiWindowBox, NULL},
@@ -1045,8 +880,6 @@ static JanetReg gui_cfuns[] = {
     {"gui-label", cfun_GuiLabel, NULL},
     {"gui-button", cfun_GuiButton, NULL},
     {"gui-label-button", cfun_GuiLabelButton, NULL},
-    {"gui-image-button", cfun_GuiImageButton, NULL},
-    {"gui-image-button-ex", cfun_GuiImageButtonEx, NULL},
     {"gui-toggle", cfun_GuiToggle, NULL},
     {"gui-toggle-group", cfun_GuiToggleGroup, NULL},
     {"gui-check-box", cfun_GuiCheckBox, NULL},
@@ -1055,7 +888,7 @@ static JanetReg gui_cfuns[] = {
     {"gui-spinner", cfun_GuiSpinner, NULL},
     {"gui-value-box", cfun_GuiValueBox, NULL},
     {"gui-text-box", cfun_GuiTextBox, NULL},
-    {"gui-text-box-multi", cfun_GuiTextBoxMulti, NULL},
+    
     {"gui-slider", cfun_GuiSlider, NULL},
     {"gui-slider-bar", cfun_GuiSliderBar, NULL},
     {"gui-progress-bar", cfun_GuiProgressBar, NULL},
@@ -1079,24 +912,6 @@ static JanetReg gui_cfuns[] = {
     {"gui-load-style-default", cfun_GuiLoadStyleDefault, NULL},
 
     {"gui-icon-text", cfun_GuiIconText, NULL},
-
-// gui_textbox_extended.h:
-    {"gui-text-box-set-active", cfun_GuiTextBoxSetActive, NULL},
-    {"gui-text-box-get-active", cfun_GuiTextBoxGetActive, NULL},
-    {"gui-text-box-set-cursor", cfun_GuiTextBoxSetCursor, NULL},
-    {"gui-text-box-get-cursor", cfun_GuiTextBoxGetCursor, NULL},
-    {"gui-text-box-set-selection", cfun_GuiTextBoxSetSelection, NULL},
-    {"gui-text-box-get-selection", cfun_GuiTextBoxGetSelection, NULL},
-    {"gui-text-box-is-active", cfun_GuiTextBoxIsActive, NULL},
-    {"gui-text-box-get-state", cfun_GuiTextBoxGetState, NULL},
-    {"gui-text-box-set-state", cfun_GuiTextBoxSetState, NULL},
-    {"gui-text-box-selectall", cfun_GuiTextBoxSelectAll, NULL},
-    {"gui-text-box-copy", cfun_GuiTextBoxCopy, NULL},
-    {"gui-text-box-paste", cfun_GuiTextBoxPaste, NULL},
-    {"gui-text-box-cut", cfun_GuiTextBoxCut, NULL},
-    {"gui-text-box-delete", cfun_GuiTextBoxDelete, NULL},
-    {"gui-text-box-get-byte-index", cfun_GuiTextBoxGetByteIndex, NULL},
-    {"gui-text-box-ex", cfun_GuiTextBoxEx, NULL},
 
     {NULL, NULL, NULL}
 };

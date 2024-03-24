@@ -14,7 +14,7 @@
     # to match /usr/X11R6/lib/libX11.so*
     :openbsd '["-Iraylib/src" "-Iraylib/src/external/glfw/include" "-Iraygui/src" "-I/usr/X11R6/include" "-Du_char=unsigned char" "-Dalloca(x)=malloc(x)"]
     #default
-    '["-Iraylib/src" "-Iraylib/src/external/glfw/include" "-Iraygui/src"]))
+    '["-Iraylib/src" "-Iraylib/src/external/glfw/include" "-Iraygui/src" "-Iraygui/icons"]))
 
 (def lflags
   (case o

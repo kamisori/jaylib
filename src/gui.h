@@ -54,9 +54,9 @@ static const KeyDef gui_control_property [] = {
     {"combo-button-width", COMBO_BUTTON_WIDTH},
     {"dropdown-items-spacing", DROPDOWN_ITEMS_SPACING},
     {"group-padding", GROUP_PADDING},
-    {"gui-text-align-center", TEXT_ALIGN_CENTER},
-    {"gui-text-align-left", TEXT_ALIGN_LEFT},
-    {"gui-text-align-right", TEXT_ALIGN_RIGHT},
+    {"text-align-center", TEXT_ALIGN_CENTER},
+    {"text-align-left", TEXT_ALIGN_LEFT},
+    {"text-align-right", TEXT_ALIGN_RIGHT},
     {"huebar-padding", HUEBAR_PADDING},                // Right hue bar separation from panel
     {"huebar-selector-height", HUEBAR_SELECTOR_HEIGHT},        // Right hue bar selector height
     {"huebar-selector-overflow", HUEBAR_SELECTOR_OVERFLOW},       // Right hue bar selector overflow
@@ -380,12 +380,26 @@ static Janet cfun_GuiUnlock(int32_t argc, Janet *argv) {
     return janet_wrap_nil();
 }
 
-static Janet cfun_GuiFade(int32_t argc, Janet *argv) {
+static Janet cfun_GuiLockedq(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 0);
+    // Check if gui is locked (global state)
+    return janet_wrap_boolean(GuiIsLocked());
+}
+
+static Janet cfun_GuiSetAlpha(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 1);
+    float alpha = (float) janet_getnumber(argv, 1);
+    // Set gui controls alpha (global state), alpha goes from 0.0f to 1.0f
+    GuiSetAlpha(alpha);
+    return janet_wrap_nil();
+}
+
+static Janet cfun_GuiFade(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 2);
     Color color = jaylib_getcolor(argv, 0);
     float alpha = (float) janet_getnumber(argv, 1);
-    GuiFade(color, alpha);                                    // Set gui controls alpha (global state), alpha goes from 0.0f to 1.0f
-    return janet_wrap_nil();
+    // Set gui controls alpha (global state), alpha goes from 0.0f to 1.0f
+    return jaylib_wrap_color(GuiFade(color, alpha));
 }
 
 static Janet cfun_GuiSetState(int32_t argc, Janet *argv) {
@@ -851,8 +865,10 @@ static Janet cfun_GuiIconText(int32_t argc, Janet *argv) {
 static JanetReg gui_cfuns[] = {
     {"gui-disable", cfun_GuiDisable, NULL},
     {"gui-lock", cfun_GuiLock, NULL},
+    {"gui-locked?", cfun_GuiLockedq, NULL},
     {"gui-unlock", cfun_GuiUnlock, NULL},
     {"gui-fade", cfun_GuiFade, NULL},
+    {"gui-set-alpha", cfun_GuiSetAlpha, NULL},
     {"gui-set-state", cfun_GuiSetState, NULL},
     {"gui-get-state", cfun_GuiGetState, NULL},
 

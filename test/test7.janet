@@ -97,7 +97,7 @@
     (gui-set-style
       :textbox
       :text-alignment
-      :gui-text-align-center)
+      :text-align-center)
 
     (let [result
           (gui-spinner
@@ -126,7 +126,7 @@
     (gui-set-style
       :textbox
       :text-alignment
-      :gui-text-align-left)
+      :text-align-left)
 
     (set (text-box :result)
       (gui-text-box
@@ -142,7 +142,7 @@
     (gui-set-style
       :button
       :text-alignment
-      :gui-text-align-center)  
+      :text-align-center)  
 
     (gui-set-tooltip "Save current file.")
     (when (gui-button 
@@ -177,7 +177,7 @@
     (gui-set-style
       :dropdownbox
       :text-alignment
-      :gui-text-align-left)
+      :text-align-left)
 
     (set (dropdown-box-001 :result)
       (gui-dropdown-box
@@ -193,7 +193,7 @@
     (gui-set-style
       :dropdownbox
       :text-alignment
-      :gui-text-align-center)
+      :text-align-center)
 
     (set (dropdown-box-000 :result)
       (gui-dropdown-box

@@ -54,9 +54,6 @@ static const KeyDef gui_control_property [] = {
     {"combo-button-width", COMBO_BUTTON_WIDTH},
     {"dropdown-items-spacing", DROPDOWN_ITEMS_SPACING},
     {"group-padding", GROUP_PADDING},
-    {"text-align-center", TEXT_ALIGN_CENTER},
-    {"text-align-left", TEXT_ALIGN_LEFT},
-    {"text-align-right", TEXT_ALIGN_RIGHT},
     {"huebar-padding", HUEBAR_PADDING},                // Right hue bar separation from panel
     {"huebar-selector-height", HUEBAR_SELECTOR_HEIGHT},        // Right hue bar selector height
     {"huebar-selector-overflow", HUEBAR_SELECTOR_OVERFLOW},       // Right hue bar selector overflow
@@ -77,6 +74,9 @@ static const KeyDef gui_control_property [] = {
     {"slider-width", SLIDER_WIDTH},
     {"spin-button-padding", SPIN_BUTTON_SPACING},
     {"spin-button-width", SPIN_BUTTON_WIDTH},
+    {"text-align-center", TEXT_ALIGN_CENTER},
+    {"text-align-left", TEXT_ALIGN_LEFT},
+    {"text-align-right", TEXT_ALIGN_RIGHT},
     {"text-alignment", TEXT_ALIGNMENT},
     {"text-color-disabled", TEXT_COLOR_DISABLED},
     {"text-color-focused", TEXT_COLOR_FOCUSED},

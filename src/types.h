@@ -545,10 +545,10 @@ static Janet jaylib_wrap_rectangle(Rectangle r) {
 
 static Janet jaylib_wrap_color(Color c) {
     Janet *t = janet_tuple_begin(4);
-    t[0] = janet_wrap_integer(c.r);
-    t[1] = janet_wrap_integer(c.g);
-    t[2] = janet_wrap_integer(c.b);
-    t[3] = janet_wrap_integer(c.a);
+    t[0] = janet_wrap_number(c.r / 255);
+    t[1] = janet_wrap_number(c.g / 255);
+    t[2] = janet_wrap_number(c.b / 255);
+    t[3] = janet_wrap_number(c.a / 255);
     return janet_wrap_tuple(janet_tuple_end(t));
 }
 

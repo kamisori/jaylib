@@ -532,6 +532,18 @@ static Janet cfun_DrawTextureRec(int32_t argc, Janet *argv) {
     return janet_wrap_nil();
 }
 
+static Janet cfun_DrawTextureNPatch(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 6);
+    Texture2D texture = *jaylib_gettexture2d(argv, 0);
+    NPatchInfo nPatchInfo = jaylib_getnpatchinfo(argv, 1);
+    Rectangle rect = jaylib_getrect(argv, 2);
+    Vector2 origin = jaylib_getvec2(argv, 3);
+    float rotation = (float)janet_getnumber(argv, 4);
+    Color color = jaylib_getcolor(argv, 5);
+    DrawTextureNPatch(texture, nPatchInfo, rect, origin, rotation, color);
+    return janet_wrap_nil();
+}
+
 static Janet cfun_DrawTexturePro(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 6);
     Texture2D texture = *jaylib_gettexture2d(argv, 0);
@@ -541,18 +553,6 @@ static Janet cfun_DrawTexturePro(int32_t argc, Janet *argv) {
     float rotation = janet_getnumber(argv, 4);
     Color color = jaylib_getcolor(argv, 5);
     DrawTexturePro(texture, rect, dest, position, rotation, color);
-    return janet_wrap_nil();
-}
-
-static Janet cfun_DrawTextureNPatch(int32_t argc, Janet *argv) {
-    janet_fixarity(argc, 5);
-    Texture2D texture = *jaylib_gettexture2d(argv, 0);
-    NPatchInfo nPatchInfo = jaylib_getNPatch(argv, 1);
-    Rectangle dest = jaylib_getrect(argv, 2);
-    Vector2 origin = jaylib_getvec2(argv, 3);
-    float rotation = janet_getnumber(argv, 4);
-    Color color = jaylib_getcolor(argv, 5);
-    DrawTextureNPatch(texture, nPatchInfo, dest, origin, rotation, color);
     return janet_wrap_nil();
 }
 
@@ -743,6 +743,17 @@ static Janet cfun_Fade(int32_t argc, Janet *argv) {
     Color color =  jaylib_getcolor(argv, 0);
     float alpha =  janet_getnumber(argv, 1);
     return jaylib_wrap_color(Fade(color, alpha));
+}
+
+static Janet cfun_LoadImageFromMemory(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 3);
+    const char *fileType = janet_getcstring(argv, 0);
+    const unsigned char *fileData = janet_getbytes(argv, 1).bytes;
+    int dataSize = janet_getinteger(argv, 2);
+
+    Image *image = janet_abstract(&AT_Image, sizeof(Image));
+    *image = LoadImageFromMemory(fileType, fileData, dataSize);
+    return janet_wrap_abstract(image);
 }
 
 /*
@@ -988,6 +999,10 @@ static const JanetReg image_cfuns[] = {
         "(draw-texture-rec texture source position tint)\n\n"
         "Draw a part of a texture defined by a rectangle"
     },
+    {"draw-texture-n-patch", cfun_DrawTextureNPatch,
+        "(draw-texture-n-patch texture n-patch-info dest origin rotation tint)\n\n"
+        "Draw a texture (or part of it) that stretches or shrinks nicely"
+    },
     {"gen-image-color", cfun_GenImageColor, 
         "(gen-image-color width height color)\n\n"
         "Generate image: plain color"
@@ -1029,7 +1044,6 @@ static const JanetReg image_cfuns[] = {
         "Set texture wrapping mode"
     },
     {"load-image-raw", cfun_LoadImageRaw, NULL},
-    {"draw-texture-npatch", cfun_DrawTextureNPatch, NULL},
     {"gen-image-perlin-noise", cfun_GenImagePerlinNoise, NULL},
     {"color->int", cfun_ColorToInt, NULL},
     {"color-normalize", cfun_ColorNormalize, NULL},
@@ -1037,5 +1051,9 @@ static const JanetReg image_cfuns[] = {
     {"color<-HSV", cfun_ColorFromHSV, NULL},
     {"get-color", cfun_GetColor, NULL},
     {"fade", cfun_Fade, NULL},
+    {"load-image-from-memory", cfun_LoadImageFromMemory,
+        "(load-image-from-memory filetype data size)\n\n"
+        "Load image from memory buffer, fileType refers to extension: i.e. '.png'"
+    },
     {NULL, NULL, NULL}
 };

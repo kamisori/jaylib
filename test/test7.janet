@@ -73,7 +73,9 @@
       (window-should-close))
 
     (when (key-pressed? :escape)
-      (set show-message-box (not show-message-box)))
+      (if show-message-box
+        (set show-message-box false)
+        (set exit-window true)))
 
     (when (and (key-down? :left-control)
             (key-pressed? :s))

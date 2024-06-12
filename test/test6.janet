@@ -5,12 +5,22 @@
 (init-window 800 600 "Test Game")
 (set-target-fps 60)
 
-(def lenna (load-image-1 "test/lenna.png"))
+(defn get-file [name]
+  (if (os/stat (string "test/" name)) (string "test/" name) name))
+
+(def texturefilepath (get-file "lenna.png"))
+(def lenna (load-image-1 texturefilepath))
 (image-dither lenna 4 4 4 4)
 (def lenna-t (load-texture-from-image lenna))
 (gen-texture-mipmaps lenna-t)
+(def default-material (load-material-default))
+(set-material-texture default-material :diffuse lenna-t)
 
-(def shader (load-shader "test/test6.vs" "test/test6.fs"))
+(def cube (let [mesh (gen-mesh-cube 2 2 2)]
+            @{:mesh mesh
+              :pos [0 0 0]}))
+
+(def shader (load-shader (get-file "test6.vs") (get-file "test6.fs")))
 (def time-loc (get-shader-location shader "time"))
 (def width-loc (get-shader-location shader "width"))
 (def height-loc (get-shader-location shader "height"))
@@ -27,14 +37,14 @@
                   :fovy 35
                   :type :perspective
                   :position [2 4 6]))
-(set-camera-mode c :orbital)
+(update-camera c :orbital)
 
 (var time 0)
 
 (while (not (window-should-close))
   (set time (+ time (get-frame-time)))
   (set-shader-value shader time-loc time :float)
-  (update-camera c)
+  (update-camera c :orbital)
 
   (begin-drawing)
   (draw-fps 10 10)
@@ -43,7 +53,15 @@
   (begin-mode-3d c)
   (begin-shader-mode shader)
 
-  (draw-cube-texture lenna-t [0 0 0] 2 2 2 :red)
+  (let [{:mesh mesh
+         :pos p} cube
+         [x y z] p
+           transform
+             [1 0 0 x
+              0 1 0 y
+              0 0 1 z
+              0 0 0 1]]
+      (draw-mesh mesh default-material transform))
 
   (end-shader-mode)
   (end-mode-3d)

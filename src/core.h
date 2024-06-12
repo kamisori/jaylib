@@ -841,7 +841,8 @@ static Janet cfun_Camera3D(int32_t argc, Janet *argv) {
             camera->position = jaylib_getvec3(argv, i + 1);
         } else if (!janet_cstrcmp(kw, "up")) {
             camera->up = jaylib_getvec3(argv, i + 1);
-        } else if (!janet_cstrcmp(kw, "fov-y")) {
+        } else if (!janet_cstrcmp(kw, "fovy") ||
+                   !janet_cstrcmp(kw, "fov-y")) {
             camera->fovy = (float) janet_getnumber(argv, i + 1);
         } else if (!janet_cstrcmp(kw, "type")) {
             const uint8_t *cameraType = janet_getkeyword(argv, i + 1);

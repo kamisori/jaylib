@@ -1,4 +1,4 @@
-(use ../build/jaylib)
+(use jaylib)
 
 (set-config-flags
   :msaa-4x-hint)

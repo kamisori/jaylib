@@ -1,4 +1,4 @@
-(use ../build/jaylib)
+(use jaylib)
 (use spork/test)
 
 # Adjust this to get numbers that are easily comparable

@@ -51,7 +51,8 @@
 // Screen-space-related functions
 [ ] Ray GetMouseRay(Vector2 mousePosition, Camera camera)
 [ ] Vector2 GetWorldToScreen(Vector3 position, Camera camera)
-[ ] Matrix GetCameraMatrix(Camera camera)
+[x] Matrix GetCameraMatrix(Camera camera)
+[x] Matrix GetCameraMatrix2D(Camera2D camera)
 
 // Timing-related functions
 [x] void SetTargetFPS(int fps)

@@ -367,6 +367,19 @@ static Janet cfun_EndMode2D(int32_t argc, Janet *argv) {
     return janet_wrap_nil();
 }
 
+static Janet cfun_GetCameraMatrix(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    Camera cam = *jaylib_getcamera3d(argv, 0);
+    Matrix matrix = GetCameraMatrix(cam);
+    return jaylib_wrap_matrix(matrix);
+}
+
+static Janet cfun_GetCameraMatrix2D(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    Camera2D cam = *jaylib_getcamera2d(argv, 0);
+    Matrix matrix = GetCameraMatrix2D(cam);
+    return jaylib_wrap_matrix(matrix);
+}
 static Janet cfun_SetTargetFPS(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 1);
     int fps = janet_getinteger(argv, 0);
@@ -1109,6 +1122,14 @@ static JanetReg core_cfuns[] = {
     {"end-mode-2d", cfun_EndMode2D, 
         "(end-mode-2d)\n\n" 
         "Ends 2D mode with custom camera"
+    },
+    {"get-camera-matrix", cfun_GetCameraMatrix, 
+        "(get-camera-matrix camera)\n\n" 
+        "Get camera transform matrix (view matrix)"
+    },
+    {"get-camera-matrix-2d", cfun_GetCameraMatrix2D, 
+        "(get-camera-matrix-2d camera)\n\n" 
+        "Get camera 2d transform matrix"
     },
     {"set-target-fps", cfun_SetTargetFPS, 
         "(set-target-fps fps)\n\n" 

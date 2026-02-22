@@ -399,6 +399,24 @@ static Janet cfun_GetCameraMatrix2D(int32_t argc, Janet *argv) {
     return jaylib_wrap_matrix(matrix);
 }
 
+static Janet cfun_GetWorldToScreen(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 2);
+    Vector3 position = jaylib_getvec3(argv, 0);
+    Camera cam = *jaylib_getcamera3d(argv, 1);
+    Vector2 ret = GetWorldToScreen(position, cam);
+    return jaylib_wrap_vec2(ret);
+}
+
+static Janet cfun_GetWorldToScreenEx(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 4);
+    Vector3 position = jaylib_getvec3(argv, 0);
+    Camera cam = *jaylib_getcamera3d(argv, 1);
+    int32_t width = janet_getinteger(argv, 2);
+    int32_t height = janet_getinteger(argv, 3);
+    Vector2 ret = GetWorldToScreenEx(position, cam, width, height);
+    return jaylib_wrap_vec2(ret);
+}
+
 static Janet cfun_SetTargetFPS(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 1);
     int fps = janet_getinteger(argv, 0);
@@ -1148,7 +1166,8 @@ static JanetReg core_cfuns[] = {
     },
     {"get-world-to-screen-ex", cfun_GetWorldToScreenEx, 
         "(get-world-to-screen-ex position camera width height)\n\n" 
-        "Get size position for a 3d world space position"},
+        "Get size position for a 3d world space position"
+    },
     {"get-camera-matrix", cfun_GetCameraMatrix, 
         "(get-camera-matrix camera)\n\n" 
         "Get camera transform matrix (view matrix)"

@@ -385,6 +385,19 @@ static Janet cfun_GetWorldToScreenEx(int32_t argc, Janet *argv) {
     return jaylib_wrap_vec2(ret);
 }
 
+static Janet cfun_GetCameraMatrix(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    Camera cam = *jaylib_getcamera3d(argv, 0);
+    Matrix matrix = GetCameraMatrix(cam);
+    return jaylib_wrap_matrix(matrix);
+}
+
+static Janet cfun_GetCameraMatrix2D(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 1);
+    Camera2D cam = *jaylib_getcamera2d(argv, 0);
+    Matrix matrix = GetCameraMatrix2D(cam);
+    return jaylib_wrap_matrix(matrix);
+}
 
 static Janet cfun_SetTargetFPS(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 1);
@@ -1135,7 +1148,14 @@ static JanetReg core_cfuns[] = {
     },
     {"get-world-to-screen-ex", cfun_GetWorldToScreenEx, 
         "(get-world-to-screen-ex position camera width height)\n\n" 
-        "Get size position for a 3d world space position"
+        "Get size position for a 3d world space position"},
+    {"get-camera-matrix", cfun_GetCameraMatrix, 
+        "(get-camera-matrix camera)\n\n" 
+        "Get camera transform matrix (view matrix)"
+    },
+    {"get-camera-matrix-2d", cfun_GetCameraMatrix2D, 
+        "(get-camera-matrix-2d camera)\n\n" 
+        "Get camera 2d transform matrix"
     },
     {"set-target-fps", cfun_SetTargetFPS, 
         "(set-target-fps fps)\n\n" 

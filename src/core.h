@@ -385,6 +385,22 @@ static Janet cfun_GetWorldToScreenEx(int32_t argc, Janet *argv) {
     return jaylib_wrap_vec2(ret);
 }
 
+static Janet cfun_GetWorldToScreen2D(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 2);
+    Vector2 position = jaylib_getvec2(argv, 0);
+    Camera2D cam = *jaylib_getcamera2d(argv, 1);
+    Vector2 ret = GetWorldToScreen2D(position, cam);
+    return jaylib_wrap_vec2(ret);
+}
+
+static Janet cfun_GetScreenToWorld2D(int32_t argc, Janet *argv) {
+    janet_fixarity(argc, 2);
+    Vector2 position = jaylib_getvec2(argv, 0);
+    Camera2D cam = *jaylib_getcamera2d(argv, 1);
+    Vector2 ret = GetScreenToWorld2D(position, cam);
+    return jaylib_wrap_vec2(ret);
+}
+
 static Janet cfun_GetCameraMatrix(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 1);
     Camera cam = *jaylib_getcamera3d(argv, 0);
@@ -1141,6 +1157,14 @@ static JanetReg core_cfuns[] = {
     {"end-mode-2d", cfun_EndMode2D, 
         "(end-mode-2d)\n\n" 
         "Ends 2D mode with custom camera"
+    },
+    {"get-world-to-screen-2d", cfun_GetWorldToScreen2D, 
+        "(get-world-to-screen-2d position camera)\n\n" 
+        "Get the screen space position for a 2d camera world space position"
+    },
+    {"get-screen-to-world-2d", cfun_GetScreenToWorld2D, 
+        "(get-screen-to-world-2d position camera)\n\n" 
+        "Get the world space position for a 2d camera screen space position"
     },
     {"get-world-to-screen", cfun_GetWorldToScreen, 
         "(get-world-to-screen position camera)\n\n" 

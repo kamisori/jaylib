@@ -98,18 +98,18 @@ static Janet cfun_IsWindowState(int32_t argc, Janet *argv) {
     const uint8_t *arg_flag = janet_getkeyword(argv, 0);
     int flag = 0;
     for (unsigned j = 0; j < (sizeof(window_state_flag_defs) / sizeof(KeyDef)); j++) {
-      if (!janet_cstrcmp(arg_flag, window_state_flag_defs[j].name)) {
-	flag = window_state_flag_defs[j].key;
-	break;
-      }
+        if (!janet_cstrcmp(arg_flag, window_state_flag_defs[j].name)) {
+            flag = window_state_flag_defs[j].key;
+            break;
+        }
     }
     if (0 == flag) {
-      JanetArray *available = janet_array(0);
-      for (unsigned j = 0; j < (sizeof(window_state_flag_defs) / sizeof(KeyDef)); j++) {
-	janet_array_push(available, janet_ckeywordv(window_state_flag_defs[j].name));
-      }
-      janet_panicf("unknown flag %v - available flags are %p", argv[0],
-		   janet_wrap_array(available));
+        JanetArray *available = janet_array(0);
+        for (unsigned j = 0; j < (sizeof(window_state_flag_defs) / sizeof(KeyDef)); j++) {
+            janet_array_push(available, janet_ckeywordv(window_state_flag_defs[j].name));
+        }
+        janet_panicf("unknown flag %v - available flags are %p", argv[0],
+            janet_wrap_array(available));
     }
 
     return janet_wrap_boolean(IsWindowState(flag));
@@ -123,8 +123,8 @@ static Janet cfun_SetWindowState(int32_t argc, Janet *argv) {
         /* Linear scan through window_state_flag_defs to find entry for arg_flag */
         unsigned int flag = 0;
         for (unsigned j = 0; j < (sizeof(window_state_flag_defs) / sizeof(KeyDef)); j++) {
-	  if (!janet_cstrcmp(arg_flag, window_state_flag_defs[j].name)) {
-	    flag = (unsigned int) window_state_flag_defs[j].key;
+      if (!janet_cstrcmp(arg_flag, window_state_flag_defs[j].name)) {
+        flag = (unsigned int) window_state_flag_defs[j].key;
                 break;
             }
         }
@@ -363,9 +363,9 @@ static Janet cfun_DisableCursor(int32_t argc, Janet *argv) {
 }
 
 static Janet cfun_IsCursorOnScreen(int32_t argc, Janet *argv) {
-	(void) argv;
-	janet_fixarity(argc, 0);
-	return janet_wrap_boolean(IsCursorOnScreen());
+    (void) argv;
+    janet_fixarity(argc, 0);
+    return janet_wrap_boolean(IsCursorOnScreen());
 }
 
 static Janet cfun_ClearBackground(int32_t argc, Janet *argv) {

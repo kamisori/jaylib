@@ -20,11 +20,10 @@ static Janet cfun_rlMatrixMode(int32_t argc, Janet *argv) {
     const uint8_t *arg_flag = janet_getkeyword(argv, 0);
     int flag = 0;
     for (unsigned j = 0; j < (sizeof(matrix_mode_flags) / sizeof(KeyDef)); j++) {
-        if (!janet_cstrcmp(arg_flag, matrix_mode_flags[j].name))
-            {
-	flag = matrix_mode_flags[j].key;
-	break;
-            }
+        if (!janet_cstrcmp(arg_flag, matrix_mode_flags[j].name)) {
+            flag = matrix_mode_flags[j].key;
+           break;
+        }
     }
 
     if (0 == flag) {
@@ -33,7 +32,7 @@ static Janet cfun_rlMatrixMode(int32_t argc, Janet *argv) {
             janet_array_push(available, janet_ckeywordv(matrix_mode_flags[j].name));
         }
         janet_panicf("unknown flag %v - available flags are %p", arg_flag,
-		 janet_wrap_array(available));
+            janet_wrap_array(available));
     }
     
     rlMatrixMode(flag);

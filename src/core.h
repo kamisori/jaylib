@@ -45,33 +45,68 @@ static Janet cfun_IsWindowResized(int32_t argc, Janet *argv) {
     return janet_wrap_boolean(IsWindowResized());
 }
 
-static const KeyDef after_init_flag_defs[] = {
-    {"vsync-hint", FLAG_VSYNC_HINT},
+/* Some raylib versions don't have all of these flags */
+static const KeyDef window_state_flag_defs[] = {
     {"fullscreen-mode", FLAG_FULLSCREEN_MODE},
-    {"window-resizable", FLAG_WINDOW_RESIZABLE},
-    {"window-undecorated", FLAG_WINDOW_UNDECORATED},
+    {"interlaced-hint", FLAG_INTERLACED_HINT},
+    {"msaa-4x-hint", FLAG_MSAA_4X_HINT},
+    {"vsync-hint", FLAG_VSYNC_HINT},
+    {"window-always-run", FLAG_WINDOW_ALWAYS_RUN},
     {"window-hidden", FLAG_WINDOW_HIDDEN},
-    {"window-minimized", FLAG_WINDOW_MINIMIZED},
+    {"window-highdpi", FLAG_WINDOW_HIGHDPI},
     {"window-maximized", FLAG_WINDOW_MAXIMIZED},
-    {"window-unfocused", FLAG_WINDOW_UNFOCUSED},
+    {"window-minimized", FLAG_WINDOW_MINIMIZED},
+    {"window-resizable", FLAG_WINDOW_RESIZABLE},
     {"window-topmost", FLAG_WINDOW_TOPMOST},
-    {"window-always-run", FLAG_WINDOW_ALWAYS_RUN}
+    {"window-transparent", FLAG_WINDOW_TRANSPARENT},
+    {"window-undecorated", FLAG_WINDOW_UNDECORATED},
+    {"window-unfocused", FLAG_WINDOW_UNFOCUSED}
 };
+
+static Janet cfun_SetConfigFlags(int32_t argc, Janet *argv) {
+    janet_arity(argc, 0, -1);
+    unsigned int flags = 0;
+    for (int32_t i = 0; i < argc; i++) {
+        const uint8_t *arg_flag = janet_getkeyword(argv, i);
+        if (!janet_cstrcmp(arg_flag, "window-maximized") &&
+            !janet_cstrcmp(arg_flag, "window-minimized")) {
+            /* Linear scan through window_state_flag_defs to find entry for arg_flag */
+            unsigned int flag = 0;
+            for (unsigned j = 0; j < (sizeof(window_state_flag_defs) / sizeof(KeyDef)); j++) {
+                if (!janet_cstrcmp(arg_flag, window_state_flag_defs[j].name)) {
+                    flag = (unsigned int) window_state_flag_defs[j].key;
+                    break;
+                }
+            }
+            if (0 == flag) {
+                JanetArray *available = janet_array(0);
+                for (unsigned j = 0; j < (sizeof(window_state_flag_defs) / sizeof(KeyDef)); j++) {
+                    janet_array_push(available, janet_ckeywordv(window_state_flag_defs[j].name));
+                }
+                janet_panicf("unknown flag %v - available flags are %p", argv[i],
+                        janet_wrap_array(available));
+            }
+            flags |= flag;
+        }
+    }
+    SetConfigFlags(flags);
+    return janet_wrap_nil();
+}
 
 static Janet cfun_IsWindowState(int32_t argc, Janet *argv) {
     janet_fixarity(argc, 1);
     const uint8_t *arg_flag = janet_getkeyword(argv, 0);
     int flag = 0;
-    for (unsigned j = 0; j < (sizeof(after_init_flag_defs) / sizeof(KeyDef)); j++) {
-      if (!janet_cstrcmp(arg_flag, after_init_flag_defs[j].name)) {
-	flag = after_init_flag_defs[j].key;
+    for (unsigned j = 0; j < (sizeof(window_state_flag_defs) / sizeof(KeyDef)); j++) {
+      if (!janet_cstrcmp(arg_flag, window_state_flag_defs[j].name)) {
+	flag = window_state_flag_defs[j].key;
 	break;
       }
     }
     if (0 == flag) {
       JanetArray *available = janet_array(0);
-      for (unsigned j = 0; j < (sizeof(after_init_flag_defs) / sizeof(KeyDef)); j++) {
-	janet_array_push(available, janet_ckeywordv(after_init_flag_defs[j].name));
+      for (unsigned j = 0; j < (sizeof(window_state_flag_defs) / sizeof(KeyDef)); j++) {
+	janet_array_push(available, janet_ckeywordv(window_state_flag_defs[j].name));
       }
       janet_panicf("unknown flag %v - available flags are %p", argv[0],
 		   janet_wrap_array(available));
@@ -85,18 +120,18 @@ static Janet cfun_SetWindowState(int32_t argc, Janet *argv) {
     unsigned int flags = 0;
     for (int32_t i = 0; i < argc; i++) {
         const uint8_t *arg_flag = janet_getkeyword(argv, i);
-        /* Linear scan through after_init_flag_defs to find entry for arg_flag */
+        /* Linear scan through window_state_flag_defs to find entry for arg_flag */
         unsigned int flag = 0;
-        for (unsigned j = 0; j < (sizeof(after_init_flag_defs) / sizeof(KeyDef)); j++) {
-	  if (!janet_cstrcmp(arg_flag, after_init_flag_defs[j].name)) {
-	    flag = (unsigned int) after_init_flag_defs[j].key;
+        for (unsigned j = 0; j < (sizeof(window_state_flag_defs) / sizeof(KeyDef)); j++) {
+	  if (!janet_cstrcmp(arg_flag, window_state_flag_defs[j].name)) {
+	    flag = (unsigned int) window_state_flag_defs[j].key;
                 break;
             }
         }
         if (0 == flag) {
             JanetArray *available = janet_array(0);
-            for (unsigned j = 0; j < (sizeof(after_init_flag_defs) / sizeof(KeyDef)); j++) {
-                janet_array_push(available, janet_ckeywordv(after_init_flag_defs[j].name));
+            for (unsigned j = 0; j < (sizeof(window_state_flag_defs) / sizeof(KeyDef)); j++) {
+                janet_array_push(available, janet_ckeywordv(window_state_flag_defs[j].name));
             }
             janet_panicf("unknown flag %v - available flags are %p", argv[i],
                     janet_wrap_array(available));
@@ -112,18 +147,18 @@ static Janet cfun_ClearWindowState(int32_t argc, Janet *argv) {
     unsigned int flags = 0;
     for (int32_t i = 0; i < argc; i++) {
         const uint8_t *arg_flag = janet_getkeyword(argv, i);
-        /* Linear scan through after_init_flag_defs to find entry for arg_flag */
+        /* Linear scan through window_state_flag_defs to find entry for arg_flag */
         unsigned int flag = 0;
-        for (unsigned j = 0; j < (sizeof(after_init_flag_defs) / sizeof(KeyDef)); j++) {
-            if (!janet_cstrcmp(arg_flag, after_init_flag_defs[j].name)) {
-                flag = (unsigned int) after_init_flag_defs[j].key;
+        for (unsigned j = 0; j < (sizeof(window_state_flag_defs) / sizeof(KeyDef)); j++) {
+            if (!janet_cstrcmp(arg_flag, window_state_flag_defs[j].name)) {
+                flag = (unsigned int) window_state_flag_defs[j].key;
                 break;
             }
         }
         if (0 == flag) {
             JanetArray *available = janet_array(0);
-            for (unsigned j = 0; j < (sizeof(after_init_flag_defs) / sizeof(KeyDef)); j++) {
-                janet_array_push(available, janet_ckeywordv(after_init_flag_defs[j].name));
+            for (unsigned j = 0; j < (sizeof(window_state_flag_defs) / sizeof(KeyDef)); j++) {
+                janet_array_push(available, janet_ckeywordv(window_state_flag_defs[j].name));
             }
             janet_panicf("unknown flag %v - available flags are %p", argv[i],
                     janet_wrap_array(available));
@@ -434,50 +469,7 @@ static Janet cfun_GetFrameTime(int32_t argc, Janet *argv) {
     return janet_wrap_number(GetFrameTime());
 }
 
-/* Some raylib versions don't have all of these flags */
-static const KeyDef flag_defs[] = {
-    {"vsync-hint", FLAG_VSYNC_HINT},
-    {"fullscreen-mode", FLAG_FULLSCREEN_MODE},
-    {"window-resizable", FLAG_WINDOW_RESIZABLE},
-    {"window-undecorated", FLAG_WINDOW_UNDECORATED},
-    {"window-hidden", FLAG_WINDOW_HIDDEN},
-    {"window-minimized", FLAG_WINDOW_MINIMIZED},
-    {"window-maximized", FLAG_WINDOW_MAXIMIZED},
-    {"window-unfocused", FLAG_WINDOW_UNFOCUSED},
-    {"window-topmost", FLAG_WINDOW_TOPMOST},
-    {"window-always-run", FLAG_WINDOW_ALWAYS_RUN},
-    {"window-transparent", FLAG_WINDOW_TRANSPARENT},
-    {"window-highdpi", FLAG_WINDOW_HIGHDPI},
-    {"interlaced-hint", FLAG_INTERLACED_HINT},
-    {"msaa-4x-hint", FLAG_MSAA_4X_HINT}
-};
 
-static Janet cfun_SetConfigFlags(int32_t argc, Janet *argv) {
-    janet_arity(argc, 0, -1);
-    unsigned int flags = 0;
-    for (int32_t i = 0; i < argc; i++) {
-        const uint8_t *arg_flag = janet_getkeyword(argv, i);
-        /* Linear scan through flag_defs to find entry for arg_flag */
-        unsigned int flag = 0;
-        for (unsigned j = 0; j < (sizeof(flag_defs) / sizeof(KeyDef)); j++) {
-            if (!janet_cstrcmp(arg_flag, flag_defs[j].name)) {
-                flag = (unsigned int) flag_defs[j].key;
-                break;
-            }
-        }
-        if (0 == flag) {
-            JanetArray *available = janet_array(0);
-            for (unsigned j = 0; j < (sizeof(flag_defs) / sizeof(KeyDef)); j++) {
-                janet_array_push(available, janet_ckeywordv(flag_defs[j].name));
-            }
-            janet_panicf("unknown flag %v - available flags are %p", argv[i],
-                    janet_wrap_array(available));
-        }
-        flags |= flag;
-    }
-    SetConfigFlags(flags);
-    return janet_wrap_nil();
-}
 
 static const KeyDef log_defs[] = {
     {"all", LOG_ALL},
@@ -1200,7 +1192,12 @@ static JanetReg core_cfuns[] = {
     },
     {"set-config-flags", cfun_SetConfigFlags, 
         "(set-config-flags flags)\n\n" 
-        "Setup init configuration flags (view FLAGS)"
+        "Setup window configuration flags (view FLAGS)\n"
+        "NOTE: This function is expected to be called before window creation,\n"
+        "because it setups some flags for the window creation process.\n\n"
+        "To configure window states after creation, use the trio:\n"
+        "set-window-state / clear-window-state / window-state?\n"
+        "to set, unset and check for state of a flag respectively"
     },
     {"set-trace-log-level", cfun_SetTraceLogLevel, 
         "(set-trace-log-level log-level)\n\n" 

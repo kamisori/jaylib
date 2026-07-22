@@ -50,7 +50,7 @@ static const KeyDef window_state_flag_defs[] = {
     {"borderless-windowed-mode", FLAG_BORDERLESS_WINDOWED_MODE}, // Set to run program in borderless windowed mode
     {"fullscreen-mode", FLAG_FULLSCREEN_MODE},    // Set to run program in fullscreen
     {"interlaced-hint", FLAG_INTERLACED_HINT},    // Set to try enabling interlaced video format (for V3D)
-    {"msaa-4-x-hint", FLAG_MSAA_4X_HINT},       // Set to try enabling MSAA 4X
+    {"msaa-4x-hint", FLAG_MSAA_4X_HINT},       // Set to try enabling MSAA 4X
     {"vsync-hint", FLAG_VSYNC_HINT},         // Set to try enabling V-Sync on GPU
     {"window-always-run", FLAG_WINDOW_ALWAYS_RUN},  // Set to allow windows running while minimized
     {"window-hidden", FLAG_WINDOW_HIDDEN},      // Set to hide window

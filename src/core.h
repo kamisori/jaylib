@@ -47,20 +47,22 @@ static Janet cfun_IsWindowResized(int32_t argc, Janet *argv) {
 
 /* Some raylib versions don't have all of these flags */
 static const KeyDef window_state_flag_defs[] = {
-    {"fullscreen-mode", FLAG_FULLSCREEN_MODE},
-    {"interlaced-hint", FLAG_INTERLACED_HINT},
-    {"msaa-4x-hint", FLAG_MSAA_4X_HINT},
-    {"vsync-hint", FLAG_VSYNC_HINT},
-    {"window-always-run", FLAG_WINDOW_ALWAYS_RUN},
-    {"window-hidden", FLAG_WINDOW_HIDDEN},
-    {"window-highdpi", FLAG_WINDOW_HIGHDPI},
-    {"window-maximized", FLAG_WINDOW_MAXIMIZED},
-    {"window-minimized", FLAG_WINDOW_MINIMIZED},
-    {"window-resizable", FLAG_WINDOW_RESIZABLE},
-    {"window-topmost", FLAG_WINDOW_TOPMOST},
-    {"window-transparent", FLAG_WINDOW_TRANSPARENT},
-    {"window-undecorated", FLAG_WINDOW_UNDECORATED},
-    {"window-unfocused", FLAG_WINDOW_UNFOCUSED}
+    {"borderless-windowed-mode", FLAG_BORDERLESS_WINDOWED_MODE}, // Set to run program in borderless windowed mode
+    {"fullscreen-mode", FLAG_FULLSCREEN_MODE},    // Set to run program in fullscreen
+    {"interlaced-hint", FLAG_INTERLACED_HINT},    // Set to try enabling interlaced video format (for V3D)
+    {"msaa-4-x-hint", FLAG_MSAA_4X_HINT},       // Set to try enabling MSAA 4X
+    {"vsync-hint", FLAG_VSYNC_HINT},         // Set to try enabling V-Sync on GPU
+    {"window-always-run", FLAG_WINDOW_ALWAYS_RUN},  // Set to allow windows running while minimized
+    {"window-hidden", FLAG_WINDOW_HIDDEN},      // Set to hide window
+    {"window-highdpi", FLAG_WINDOW_HIGHDPI},     // Set to support HighDPI
+    {"window-maximized", FLAG_WINDOW_MAXIMIZED},   // Set to maximize window (expanded to monitor)
+    {"window-minimized", FLAG_WINDOW_MINIMIZED},   // Set to minimize window (iconify)
+    {"window-mouse-passthrough", FLAG_WINDOW_MOUSE_PASSTHROUGH}, // Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED
+    {"window-resizable", FLAG_WINDOW_RESIZABLE},   // Set to allow resizable window
+    {"window-topmost", FLAG_WINDOW_TOPMOST},     // Set to window always on top
+    {"window-transparent", FLAG_WINDOW_TRANSPARENT}, // Set to allow transparent framebuffer
+    {"window-undecorated", FLAG_WINDOW_UNDECORATED}, // Set to disable window decoration (frame and buttons)
+    {"window-unfocused", FLAG_WINDOW_UNFOCUSED}   // Set to window non focused
 };
 
 static Janet cfun_SetConfigFlags(int32_t argc, Janet *argv) {
@@ -68,26 +70,23 @@ static Janet cfun_SetConfigFlags(int32_t argc, Janet *argv) {
     unsigned int flags = 0;
     for (int32_t i = 0; i < argc; i++) {
         const uint8_t *arg_flag = janet_getkeyword(argv, i);
-        if (!janet_cstrcmp(arg_flag, "window-maximized") &&
-            !janet_cstrcmp(arg_flag, "window-minimized")) {
-            /* Linear scan through window_state_flag_defs to find entry for arg_flag */
-            unsigned int flag = 0;
-            for (unsigned j = 0; j < (sizeof(window_state_flag_defs) / sizeof(KeyDef)); j++) {
-                if (!janet_cstrcmp(arg_flag, window_state_flag_defs[j].name)) {
-                    flag = (unsigned int) window_state_flag_defs[j].key;
-                    break;
-                }
+        /* Linear scan through window_state_flag_defs to find entry for arg_flag */
+        unsigned int flag = 0;
+        for (unsigned j = 0; j < (sizeof(window_state_flag_defs) / sizeof(KeyDef)); j++) {
+            if (!janet_cstrcmp(arg_flag, window_state_flag_defs[j].name)) {
+                flag = (unsigned int) window_state_flag_defs[j].key;
+                break;
             }
-            if (0 == flag) {
-                JanetArray *available = janet_array(0);
-                for (unsigned j = 0; j < (sizeof(window_state_flag_defs) / sizeof(KeyDef)); j++) {
-                    janet_array_push(available, janet_ckeywordv(window_state_flag_defs[j].name));
-                }
-                janet_panicf("unknown flag %v - available flags are %p", argv[i],
-                        janet_wrap_array(available));
-            }
-            flags |= flag;
         }
+        if (0 == flag) {
+            JanetArray *available = janet_array(0);
+            for (unsigned j = 0; j < (sizeof(window_state_flag_defs) / sizeof(KeyDef)); j++) {
+                janet_array_push(available, janet_ckeywordv(window_state_flag_defs[j].name));
+            }
+            janet_panicf("unknown flag %v - available flags are %p", argv[i],
+                    janet_wrap_array(available));
+        }
+        flags |= flag;
     }
     SetConfigFlags(flags);
     return janet_wrap_nil();

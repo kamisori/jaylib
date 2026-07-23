@@ -31,7 +31,7 @@ static Janet cfun_rlMatrixMode(int32_t argc, Janet *argv) {
         for (unsigned j = 0; j < (sizeof(matrix_mode_flags) / sizeof(KeyDef)); j++) {
             janet_array_push(available, janet_ckeywordv(matrix_mode_flags[j].name));
         }
-        janet_panicf("unknown flag %v - available flags are %p", arg_flag,
+        janet_panicf("unknown flag %v - available flags are %p", argv[0],
             janet_wrap_array(available));
     }
     

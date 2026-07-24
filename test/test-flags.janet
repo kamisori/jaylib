@@ -63,12 +63,6 @@
     :window-undecorated
     :window-unfocused)
 
-
-
-(expect-errors
-    "wrong flag did not error rl-matrix-mode"
-    rl-matrix-mode :foo)
-
 (no-errors
     "could not set config flags"
     set-config-flags
@@ -88,6 +82,10 @@
       :window-transparent
       :window-undecorated
       :window-unfocused)
+
+(expect-errors
+    "wrong flag did not error rl-matrix-mode"
+    rl-matrix-mode :foo)
 
 (no-errors
     "could not set rl-modelview"
